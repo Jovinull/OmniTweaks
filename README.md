@@ -77,3 +77,17 @@ baixará o Minecraft 26.1.1. Isso pode demorar alguns minutos dependendo da cone
 ```bat
 gradlew.bat clean build --no-daemon
 ```
+
+---
+
+## Contribuindo
+
+Contribuições são bem-vindas. Abra uma issue para discutir a ideia ou envie um pull request diretamente — não há processo formal além disso.
+
+---
+
+## Licença
+
+Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE](LICENSE) para os termos completos.
+
+Em resumo: você pode usar, copiar, modificar e distribuir este código livremente, inclusive em outros mods, desde que mantenha o aviso de copyright original.
