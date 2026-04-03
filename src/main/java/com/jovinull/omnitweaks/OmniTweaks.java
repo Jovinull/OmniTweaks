@@ -2,6 +2,7 @@ package com.jovinull.omnitweaks;
 
 import com.jovinull.omnitweaks.commands.BaseCommand;
 import com.jovinull.omnitweaks.core.ModuleManager;
+import com.jovinull.omnitweaks.modules.treecapitator.TreeCapitatorModule;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class OmniTweaks implements ModInitializer {
         moduleManager = new ModuleManager();
 
         BaseCommand.register(moduleManager);
+        TreeCapitatorModule.register();
 
         LOGGER.info("[OmniTweaks] Mod inicializado com {} módulo(s) disponível(is).",
                 moduleManager.getAvailableModules().size());

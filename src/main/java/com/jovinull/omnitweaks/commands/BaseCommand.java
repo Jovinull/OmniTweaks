@@ -45,6 +45,9 @@ public final class BaseCommand {
                         // Subcomando: /omnitweaks autoshulker
                         .then(CommandManager.literal("autoshulker")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "autoshulker")))
+                        // Subcomando: /omnitweaks treecapitator
+                        .then(CommandManager.literal("treecapitator")
+                                .executes(ctx -> toggleModule(ctx, moduleManager, "treecapitator")))
         );
 
         // Alias: /ot redireciona para /omnitweaks (preserva subcomandos)
@@ -84,6 +87,7 @@ public final class BaseCommand {
     private static String formatModuleName(String module) {
         return switch (module) {
             case "autoshulker" -> "AutoShulker";
+            case "treecapitator" -> "TreeCapitator";
             default -> module;
         };
     }
