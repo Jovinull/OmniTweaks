@@ -55,6 +55,9 @@ public final class BaseCommand {
                         // Subcomando: /omnitweaks treecapitator
                         .then(Commands.literal("treecapitator")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "treecapitator")))
+                        // Subcomando: /omnitweaks quickdump
+                        .then(Commands.literal("quickdump")
+                                .executes(ctx -> toggleModule(ctx, moduleManager, "quickdump")))
                         // Subcomando: /omnitweaks all — ativa ou desativa todos os módulos
                         .then(Commands.literal("all")
                                 .executes(ctx -> toggleAll(ctx, moduleManager)))
@@ -167,6 +170,7 @@ public final class BaseCommand {
             case "autoshulker" -> "AutoShulker";
             case "treecapitator" -> "TreeCapitator";
             case "omnidrill" -> "OmniDrill";
+            case "quickdump" -> "QuickDump";
             default -> module;
         };
     }

@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ModuleManager {
 
     /** Identificadores de todos os módulos registrados no sistema. */
-    private static final Set<String> AVAILABLE_MODULES = Set.of("autoshulker", "treecapitator", "omnidrill");
+    private static final Set<String> AVAILABLE_MODULES = Set.of("autoshulker", "treecapitator", "omnidrill", "quickdump");
 
     /** Mapa de UUID do jogador para o conjunto de módulos ativados. */
     private final Map<UUID, Set<String>> playerModules = new ConcurrentHashMap<>();
