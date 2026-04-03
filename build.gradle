@@ -1,6 +1,7 @@
 plugins {
     id 'net.fabricmc.fabric-loom' version '1.15.5'
     id 'java'
+    id 'com.diffplug.spotless' version '7.0.3'
 }
 
 version = project.mod_version
@@ -19,8 +20,7 @@ loom {
     noIntermediateMappings()
 }
 
-// O ambiente local usa JDK 25. A flag --release 25 é necessária pois MC 26.1.1
-// requer Java 25 (java-runtime-epsilon).
+// MC 26.1.1 exige Java 25 (java-runtime-epsilon).
 java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
@@ -29,6 +29,20 @@ java {
 tasks.withType(JavaCompile).configureEach {
     options.release = 25
     options.encoding = "UTF-8"
+}
+
+spotless {
+    java {
+        trimTrailingWhitespace()
+        endWithNewline()
+        // Ordem de imports: java/javax → outros (mojang, mixin…) → net.minecraft → net.fabricmc → projeto
+        importOrder('java', 'javax', '', 'net.minecraft', 'net.fabricmc', 'com.jovinull')
+        removeUnusedImports()
+    }
+    groovyGradle {
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 dependencies {

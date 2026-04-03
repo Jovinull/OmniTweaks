@@ -1,8 +1,7 @@
 package com.jovinull.omnitweaks.modules.omnidrill;
 
-import com.jovinull.omnitweaks.OmniTweaks;
-import com.jovinull.omnitweaks.core.ModuleManager;
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import java.util.*;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -16,7 +15,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
-import java.util.*;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+
+import com.jovinull.omnitweaks.OmniTweaks;
+import com.jovinull.omnitweaks.core.ModuleManager;
 
 /**
  * Modulo OmniDrill — ao quebrar um bloco com uma ferramenta de mineracao,

@@ -1,17 +1,20 @@
 package com.jovinull.omnitweaks.commands;
 
-import com.jovinull.omnitweaks.core.ModuleManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.ChatFormatting;
+
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+
+import com.jovinull.omnitweaks.core.ModuleManager;
 
 /**
  * Registra o comando base {@code /omnitweaks} (alias {@code /ot})

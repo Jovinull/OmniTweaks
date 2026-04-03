@@ -1,12 +1,14 @@
 package com.jovinull.omnitweaks;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.fabricmc.api.ModInitializer;
+
 import com.jovinull.omnitweaks.commands.BaseCommand;
 import com.jovinull.omnitweaks.core.ModuleManager;
 import com.jovinull.omnitweaks.modules.omnidrill.OmniDrillModule;
 import com.jovinull.omnitweaks.modules.treecapitator.TreeCapitatorModule;
-import net.fabricmc.api.ModInitializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Classe principal do mod OmniTweaks.

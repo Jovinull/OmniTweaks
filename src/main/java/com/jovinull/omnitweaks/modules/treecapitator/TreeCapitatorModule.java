@@ -1,8 +1,7 @@
 package com.jovinull.omnitweaks.modules.treecapitator;
 
-import com.jovinull.omnitweaks.OmniTweaks;
-import com.jovinull.omnitweaks.core.ModuleManager;
-import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import java.util.*;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,7 +12,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.*;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+
+import com.jovinull.omnitweaks.OmniTweaks;
+import com.jovinull.omnitweaks.core.ModuleManager;
 
 /**
  * Modulo TreeCapitator — ao quebrar um tronco com um machado, derruba

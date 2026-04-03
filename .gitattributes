@@ -1,0 +1,14 @@
+# Normaliza line endings para LF em todos os arquivos de texto
+* text=auto eol=lf
+
+# Arquivos Windows que precisam de CRLF
+*.bat text eol=crlf
+
+# Binários — não tocar
+*.jar binary
+*.png binary
+*.gif binary
+*.zip binary
+
+# Script de build deve ter permissão de execução no Linux/macOS (CI)
+gradlew text eol=lf

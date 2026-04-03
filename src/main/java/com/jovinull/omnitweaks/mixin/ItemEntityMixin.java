@@ -1,14 +1,16 @@
 package com.jovinull.omnitweaks.mixin;
 
-import com.jovinull.omnitweaks.modules.autoshulker.AutoShulkerModule;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+
+import com.jovinull.omnitweaks.modules.autoshulker.AutoShulkerModule;
 
 /**
  * Mixin na classe {@link ItemEntity} para interceptar a coleta de itens pelo jogador.

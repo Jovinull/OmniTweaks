@@ -1,7 +1,5 @@
 package com.jovinull.omnitweaks.modules.autoshulker;
 
-import com.jovinull.omnitweaks.OmniTweaks;
-import com.jovinull.omnitweaks.core.ModuleManager;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,6 +11,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
+
+import com.jovinull.omnitweaks.OmniTweaks;
+import com.jovinull.omnitweaks.core.ModuleManager;
 
 /**
  * Módulo AutoShulker — ao coletar itens do chão, tenta inseri-los
