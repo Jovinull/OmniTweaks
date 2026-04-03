@@ -5,25 +5,25 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
 import com.jovinull.omnitweaks.OmniTweaks;
 import com.jovinull.omnitweaks.core.ModuleManager;
 
 /**
- * Módulo QuickDump — ao clicar com o botão direito no ar segurando uma
- * Shulker Box, despeja automaticamente seu conteúdo no inventário do jogador.
+ * Módulo QuickDump — ao agachar e clicar com o botão direito em um baú (ou qualquer
+ * container) segurando uma Shulker Box, despeja automaticamente seu conteúdo no container.
  *
- * <p>Só intercepta cliques no ar (USE_ITEM). Cliques em blocos continuam
- * colocando a Shulker Box normalmente (sem conflito com vanilla).</p>
+ * <p>Clique direito normal em cima do baú continua abrindo a GUI vanilla normalmente.</p>
  */
 public final class QuickDumpModule {
 
@@ -32,13 +32,16 @@ public final class QuickDumpModule {
     private QuickDumpModule() {}
 
     public static void register() {
-        UseItemCallback.EVENT.register((player, world, hand) -> {
-            ItemStack heldItem = player.getItemInHand(hand);
-
+        UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             if (world.isClientSide()
                     || hand != InteractionHand.MAIN_HAND
-                    || !isShulkerBox(heldItem)
+                    || !player.isShiftKeyDown()
                     || !(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResult.PASS;
+            }
+
+            ItemStack heldItem = player.getItemInHand(hand);
+            if (!isShulkerBox(heldItem)) {
                 return InteractionResult.PASS;
             }
 
@@ -47,19 +50,23 @@ public final class QuickDumpModule {
                 return InteractionResult.PASS;
             }
 
-            int dumped = dumpShulkerBox(serverPlayer, heldItem);
+            BlockEntity blockEntity = world.getBlockEntity(hitResult.getBlockPos());
+            if (!(blockEntity instanceof Container targetContainer)) {
+                return InteractionResult.PASS;
+            }
+
+            int dumped = dumpIntoContainer(heldItem, targetContainer);
 
             Component message;
             if (dumped > 0) {
                 message = Component.empty()
                         .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
-                        .append(Component.literal("Descarregados ").withStyle(ChatFormatting.WHITE))
                         .append(Component.literal(dumped + " item(ns)").withStyle(ChatFormatting.GREEN))
-                        .append(Component.literal(" da Shulker Box.").withStyle(ChatFormatting.WHITE));
+                        .append(Component.literal(" descarregados no container.").withStyle(ChatFormatting.WHITE));
             } else {
                 message = Component.empty()
                         .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
-                        .append(Component.literal("Shulker Box vazia ou inventário cheio.").withStyle(ChatFormatting.RED));
+                        .append(Component.literal("Container cheio ou Shulker Box vazia.").withStyle(ChatFormatting.RED));
             }
 
             serverPlayer.sendSystemMessage(message);
@@ -68,33 +75,55 @@ public final class QuickDumpModule {
     }
 
     /**
-     * Move o máximo possível do conteúdo da Shulker Box para o inventário do jogador.
+     * Move o máximo possível do conteúdo da Shulker Box para o container alvo.
      *
-     * @return total de itens (não stacks) movidos para o inventário
+     * @return total de itens (não stacks) movidos para o container
      */
-    private static int dumpShulkerBox(ServerPlayer player, ItemStack shulkerStack) {
-        ItemContainerContents container = shulkerStack.getOrDefault(
+    private static int dumpIntoContainer(ItemStack shulkerStack, Container target) {
+        ItemContainerContents containerContents = shulkerStack.getOrDefault(
                 DataComponents.CONTAINER, ItemContainerContents.EMPTY);
 
         NonNullList<ItemStack> contents = NonNullList.withSize(SHULKER_SLOTS, ItemStack.EMPTY);
-        container.copyInto(contents);
+        containerContents.copyInto(contents);
 
-        Inventory inventory = player.getInventory();
         int totalDumped = 0;
+        int targetSize = target.getContainerSize();
 
         for (int i = 0; i < SHULKER_SLOTS; i++) {
             ItemStack slot = contents.get(i);
             if (slot.isEmpty()) continue;
 
-            int countBefore = slot.getCount();
-            inventory.add(slot);
-            int moved = countBefore - slot.getCount();
-
-            if (moved > 0) {
-                totalDumped += moved;
-                if (slot.isEmpty()) {
-                    contents.set(i, ItemStack.EMPTY);
+            // Fase 1: mesclar com stacks existentes do mesmo tipo
+            for (int j = 0; j < targetSize && !slot.isEmpty(); j++) {
+                ItemStack targetSlot = target.getItem(j);
+                if (targetSlot.isEmpty() || !ItemStack.isSameItemSameComponents(slot, targetSlot)) {
+                    continue;
                 }
+                int maxStack = Math.min(targetSlot.getMaxStackSize(), target.getMaxStackSize(targetSlot));
+                int space = maxStack - targetSlot.getCount();
+                if (space <= 0) continue;
+
+                int transfer = Math.min(slot.getCount(), space);
+                targetSlot.grow(transfer);
+                slot.shrink(transfer);
+                totalDumped += transfer;
+                target.setChanged();
+            }
+
+            // Fase 2: inserir em slots vazios
+            for (int j = 0; j < targetSize && !slot.isEmpty(); j++) {
+                if (!target.getItem(j).isEmpty()) continue;
+                if (!target.canPlaceItem(j, slot)) continue;
+
+                int transfer = Math.min(slot.getCount(), Math.min(slot.getMaxStackSize(), target.getMaxStackSize(slot)));
+                target.setItem(j, slot.copyWithCount(transfer));
+                slot.shrink(transfer);
+                totalDumped += transfer;
+                target.setChanged();
+            }
+
+            if (slot.isEmpty()) {
+                contents.set(i, ItemStack.EMPTY);
             }
         }
 
