@@ -1,5 +1,8 @@
 package com.jovinull.omnitweaks.commands;
 
+import java.util.Set;
+import java.util.UUID;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -52,18 +55,61 @@ public final class BaseCommand {
                         // Subcomando: /omnitweaks treecapitator
                         .then(Commands.literal("treecapitator")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "treecapitator")))
-                        // Subcomando: /omnitweaks drill [<largura> <altura>]
+                        // Subcomando: /omnitweaks quickdump
+                        .then(Commands.literal("quickdump")
+                                .executes(ctx -> toggleModule(ctx, moduleManager, "quickdump")))
+                        // Subcomando: /omnitweaks planter
+                        .then(Commands.literal("planter")
+                                .executes(ctx -> toggleModule(ctx, moduleManager, "omniplanter")))
+                        // Subcomando: /omnitweaks all — ativa ou desativa todos os módulos
+                        .then(Commands.literal("all")
+                                .executes(ctx -> toggleAll(ctx, moduleManager)))
+                        // Subcomando: /omnitweaks drill [<largura> <altura> [<profundidade>]]
                         .then(Commands.literal("drill")
                                 // Sem argumentos: alterna (toggle) ligado/desligado
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "omnidrill"))
-                                // Com argumentos: define area e ativa
+                                // Com argumentos: define area e ativa (profundidade padrao 3)
                                 .then(Commands.argument("largura", IntegerArgumentType.integer(1, 8))
                                         .then(Commands.argument("altura", IntegerArgumentType.integer(1, 8))
-                                                .executes(ctx -> activateDrill(ctx, moduleManager)))))
+                                                .executes(ctx -> activateDrill(ctx, moduleManager, 3))
+                                                .then(Commands.argument("profundidade", IntegerArgumentType.integer(1, 8))
+                                                        .executes(ctx -> activateDrill(ctx, moduleManager,
+                                                                IntegerArgumentType.getInteger(ctx, "profundidade")))))))
         );
 
         // Alias: /ot redireciona para /omnitweaks (preserva subcomandos)
         dispatcher.register(Commands.literal("ot").redirect(root));
+    }
+
+    /**
+     * Ativa todos os módulos se algum estiver inativo; desativa todos se todos estiverem ativos.
+     *
+     * @return 1 (sucesso) para o Brigadier
+     */
+    private static int toggleAll(CommandContext<CommandSourceStack> ctx,
+                                  ModuleManager moduleManager) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        UUID uuid = player.getUUID();
+        Set<String> modules = moduleManager.getAvailableModules();
+
+        boolean allEnabled = modules.stream().allMatch(m -> moduleManager.isEnabled(uuid, m));
+
+        if (allEnabled) {
+            modules.forEach(m -> moduleManager.disable(uuid, m));
+        } else {
+            modules.forEach(m -> moduleManager.enable(uuid, m));
+        }
+
+        Component status = allEnabled
+                ? Component.literal("desativados.").withStyle(ChatFormatting.RED)
+                : Component.literal("ativados!").withStyle(ChatFormatting.GREEN);
+
+        player.sendSystemMessage(Component.empty()
+                .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal("Todos os módulos ").withStyle(ChatFormatting.WHITE))
+                .append(status));
+
+        return 1;
     }
 
     /**
@@ -100,19 +146,20 @@ public final class BaseCommand {
      * @return 1 (sucesso) para o Brigadier
      */
     private static int activateDrill(CommandContext<CommandSourceStack> ctx,
-                                      ModuleManager moduleManager) throws CommandSyntaxException {
+                                      ModuleManager moduleManager,
+                                      int depth) throws CommandSyntaxException {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         int width = IntegerArgumentType.getInteger(ctx, "largura");
         int height = IntegerArgumentType.getInteger(ctx, "altura");
 
-        moduleManager.setDrillArea(player.getUUID(), width, height);
+        moduleManager.setDrillArea(player.getUUID(), width, height, depth);
         moduleManager.enable(player.getUUID(), "omnidrill");
 
         Component message = Component.empty()
                 .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
                 .append(Component.literal("OmniDrill ").withStyle(ChatFormatting.WHITE))
                 .append(Component.literal("ativado: ").withStyle(ChatFormatting.GREEN))
-                .append(Component.literal(width + "x" + height).withStyle(ChatFormatting.AQUA));
+                .append(Component.literal(width + "x" + height + "x" + depth).withStyle(ChatFormatting.AQUA));
 
         player.sendSystemMessage(message);
         return 1;
@@ -126,6 +173,8 @@ public final class BaseCommand {
             case "autoshulker" -> "AutoShulker";
             case "treecapitator" -> "TreeCapitator";
             case "omnidrill" -> "OmniDrill";
+            case "quickdump" -> "QuickDump";
+            case "omniplanter" -> "OmniPlanter";
             default -> module;
         };
     }

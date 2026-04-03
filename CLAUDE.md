@@ -20,6 +20,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 There are no automated tests — CI validates only that Spotless formatting passes and the project compiles.
 
+**After editing any Java or `.gradle` file, always run `./gradlew build` locally before committing.** The pre-commit hook only checks formatting — it does not compile. The CI build runs only after the push, so a commit with broken code will reach the remote before being caught.
+
 ## Critical: Minecraft 26.1.1 and the no-remap setup
 
 This mod targets **Minecraft 26.1.1**, the first release under Mojang's new versioning scheme (no "1." prefix, released 2026). MC 26.1.1 ships **without bytecode obfuscation**, which changes the entire Gradle/Loom configuration:
@@ -67,9 +69,10 @@ Single root command `/omnitweaks` (alias `/ot`) with literal subcommands per mod
 ### Module pattern
 
 Each module (except AutoShulker) registers a Fabric API event listener:
-- **TreeCapitator** — `PlayerBlockBreakEvents.AFTER`: checks log block + axe in hand, BFS 26-neighbor (3×3×3 cube) up to 200 blocks, calls `level.destroyBlock()` + `hurtAndBreak()`
-- **OmniDrill** — `PlayerBlockBreakEvents.BEFORE`: checks `DataComponents.TOOL` + `player.pick()` for face detection, BFS 4-connected in the perpendicular plane within configured area (default 3×3, max 8×8), respects 6-block distance and durability ≥ 2
+- **TreeCapitator** — `PlayerBlockBreakEvents.AFTER`: checks log block + axe in hand, BFS 26-neighbor (3×3×3 cube) up to 200 blocks, calls `level.destroyBlock()` + `hurtAndBreak()` + `awardStat(Stats.BLOCK_MINED)`
+- **OmniDrill** — `PlayerBlockBreakEvents.BEFORE`: checks `DataComponents.TOOL` + `player.pick()` for face detection, BFS in a 3D volume (width × height × depth, default 3×3×3, max 8×8×8) expanding laterally and into the wall via `face.getOpposite()`, respects 6-block distance and durability ≥ 2; yields to TreeCapitator when both are active and block is a log; awards `Stats.BLOCK_MINED` for each extra block
 - **AutoShulker** — No event registration; `ItemEntityMixin` injects into `ItemEntity.playerTouch()` at HEAD (cancellable), delegates to `AutoShulkerModule.handlePickup()`. Iterates player inventory for Shulker Boxes, uses `DataComponents.CONTAINER` / `ItemContainerContents` (no direct NBT), merges then fills empty slots
+- **QuickDump** — `UseBlockCallback.EVENT` (sneak + right-click on any container block); intercepts only when player holds a Shulker Box in main hand and is sneaking; transfers items into the target `Container` block entity (merge phase then empty slots, respects `canPlaceItem`); updates `DataComponents.CONTAINER` in-place on the Shulker Box; returns `InteractionResult.SUCCESS_SERVER` to cancel vanilla (no GUI opens)
 
 ### Adding a new module
 
@@ -78,6 +81,16 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 3. Add a subcommand literal in `BaseCommand.registerCommands()`
 4. Call `<Name>Module.register()` in `OmniTweaks.onInitialize()`
 5. If Mixin-based: add the mixin class and declare it in `omnitweaks.mixins.json`
+
+## GitHub workflow
+
+`gh` CLI is at `/c/Program Files/GitHub CLI/gh` (not in PATH on this machine — use the full path).
+
+**After every `git push` of a feature/fix branch, immediately create a PR with `gh pr create`.** Never leave a pushed branch without a PR. The CI workflow ("Verificação e build") must pass before merging; direct pushes to `main` are blocked.
+
+```bash
+"/c/Program Files/GitHub CLI/gh" pr create --title "..." --body "..."
+```
 
 ## Commit conventions
 

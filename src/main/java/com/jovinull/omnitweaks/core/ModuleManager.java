@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ModuleManager {
 
     /** Identificadores de todos os módulos registrados no sistema. */
-    private static final Set<String> AVAILABLE_MODULES = Set.of("autoshulker", "treecapitator", "omnidrill");
+    private static final Set<String> AVAILABLE_MODULES = Set.of("autoshulker", "treecapitator", "omnidrill", "quickdump", "omniplanter");
 
     /** Mapa de UUID do jogador para o conjunto de módulos ativados. */
     private final Map<UUID, Set<String>> playerModules = new ConcurrentHashMap<>();
@@ -87,25 +87,40 @@ public class ModuleManager {
     }
 
     /**
+     * Desativa um módulo para o jogador sem alternar.
+     * Diferente de {@link #toggle}, este método sempre desativa.
+     *
+     * @param playerId UUID do jogador
+     * @param module   identificador do módulo
+     */
+    public void disable(UUID playerId, String module) {
+        Set<String> modules = playerModules.get(playerId);
+        if (modules != null) {
+            modules.remove(module);
+        }
+    }
+
+    /**
      * Define a configuração de área do OmniDrill para o jogador.
      *
      * @param playerId UUID do jogador
      * @param width    largura da área (1–8)
      * @param height   altura da área (1–8)
+     * @param depth    profundidade da área (1–8)
      */
-    public void setDrillArea(UUID playerId, int width, int height) {
-        drillAreaConfig.put(playerId, new int[]{width, height});
+    public void setDrillArea(UUID playerId, int width, int height, int depth) {
+        drillAreaConfig.put(playerId, new int[]{width, height, depth});
     }
 
     /**
      * Retorna a configuração de área do OmniDrill para o jogador.
-     * Se não houver configuração salva, retorna o padrão 3x3.
+     * Se não houver configuração salva, retorna o padrão 3x3x3.
      *
      * @param playerId UUID do jogador
-     * @return array [largura, altura]
+     * @return array [largura, altura, profundidade]
      */
     public int[] getDrillArea(UUID playerId) {
-        return drillAreaConfig.getOrDefault(playerId, new int[]{3, 3});
+        return drillAreaConfig.getOrDefault(playerId, new int[]{3, 3, 3});
     }
 
     /**
