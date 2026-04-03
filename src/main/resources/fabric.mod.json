@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "omnitweaks",
+  "version": "${version}",
+
+  "name": "OmniTweaks",
+  "description": "Mod modular de Quality of Life para Minecraft.",
+  "authors": [
+    "Jovinull"
+  ],
+  "contact": {},
+  "license": "MIT",
+
+  "environment": "*",
+
+  "entrypoints": {
+    "main": [
+      "com.jovinull.omnitweaks.OmniTweaks"
+    ]
+  },
+
+  "mixins": [
+    "omnitweaks.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": ">=1.21.5",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
