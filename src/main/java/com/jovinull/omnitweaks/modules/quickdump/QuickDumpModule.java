@@ -10,9 +10,13 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 
@@ -20,10 +24,11 @@ import com.jovinull.omnitweaks.OmniTweaks;
 import com.jovinull.omnitweaks.core.ModuleManager;
 
 /**
- * Módulo QuickDump — ao agachar e clicar com o botão direito em um baú (ou qualquer
- * container) segurando uma Shulker Box, despeja automaticamente seu conteúdo no container.
+ * Módulo QuickDump — ao agachar e clicar com o botão direito em um container
+ * segurando uma Shulker Box, despeja automaticamente seu conteúdo no container.
  *
- * <p>Clique direito normal em cima do baú continua abrindo a GUI vanilla normalmente.</p>
+ * <p>Suporta baús simples e duplos (via {@link ChestBlock#getContainer}).
+ * Clique direito sem agachar abre o container normalmente (vanilla).</p>
  */
 public final class QuickDumpModule {
 
@@ -50,12 +55,16 @@ public final class QuickDumpModule {
                 return InteractionResult.PASS;
             }
 
-            BlockEntity blockEntity = world.getBlockEntity(hitResult.getBlockPos());
-            if (!(blockEntity instanceof Container targetContainer)) {
+            Container targetContainer = resolveContainer(world, hitResult);
+            if (targetContainer == null) {
                 return InteractionResult.PASS;
             }
 
             int dumped = dumpIntoContainer(heldItem, targetContainer);
+
+            // Sincroniza o inventário do jogador com o cliente para evitar
+            // dessincronização visual da Shulker Box na hotbar
+            serverPlayer.inventoryMenu.broadcastChanges();
 
             Component message;
             if (dumped > 0) {
@@ -75,9 +84,32 @@ public final class QuickDumpModule {
     }
 
     /**
+     * Resolve o container no bloco clicado.
+     * Para baús, usa {@link ChestBlock#getContainer} que trata baús duplos corretamente.
+     * Para demais containers (barril, dispenser, etc.) usa o BlockEntity diretamente.
+     */
+    private static Container resolveContainer(Level world, BlockHitResult hitResult) {
+        var pos = hitResult.getBlockPos();
+        BlockState state = world.getBlockState(pos);
+
+        if (state.getBlock() instanceof ChestBlock chestBlock) {
+            return ChestBlock.getContainer(chestBlock, state, world, pos, false);
+        }
+
+        BlockEntity be = world.getBlockEntity(pos);
+        if (be instanceof Container container) {
+            return container;
+        }
+
+        return null;
+    }
+
+    /**
      * Move o máximo possível do conteúdo da Shulker Box para o container alvo.
+     * Fase 1: mescla com stacks existentes do mesmo tipo.
+     * Fase 2: preenche slots vazios com o restante.
      *
-     * @return total de itens (não stacks) movidos para o container
+     * @return total de itens (não stacks) movidos
      */
     private static int dumpIntoContainer(ItemStack shulkerStack, Container target) {
         ItemContainerContents containerContents = shulkerStack.getOrDefault(
