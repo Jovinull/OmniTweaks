@@ -62,9 +62,10 @@ public final class QuickDumpModule {
 
             int dumped = dumpIntoContainer(heldItem, targetContainer);
 
-            // Sincroniza o inventário do jogador com o cliente para evitar
-            // dessincronização visual da Shulker Box na hotbar
-            serverPlayer.inventoryMenu.broadcastChanges();
+            // Força resync completo de todos os slots para corrigir a previsão
+            // do cliente — sem isso, quando nada muda (baú cheio / shulker vazio)
+            // o cliente "vê" a Shulker Box sendo colocada no chão e não corrige.
+            serverPlayer.inventoryMenu.sendAllDataToRemote();
 
             Component message;
             if (dumped > 0) {
