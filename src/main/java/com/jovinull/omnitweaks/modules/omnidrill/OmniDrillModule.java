@@ -32,9 +32,6 @@ import com.jovinull.omnitweaks.core.ModuleManager;
  */
 public final class OmniDrillModule {
 
-    /** Distancia maxima ao quadrado do jogador (6 blocos). */
-    private static final double MAX_DISTANCIA_SQ = 6.0 * 6.0;
-
     private OmniDrillModule() {}
 
     /**
@@ -92,7 +89,7 @@ public final class OmniDrillModule {
         Block targetBlock = state.getBlock();
 
         List<BlockPos> blocosConectados = findConnectedBlocks(
-                player, world, pos, targetBlock, widthAxis, heightAxis, width, height, depth, face);
+                world, pos, targetBlock, widthAxis, heightAxis, width, height, depth, face);
 
         if (blocosConectados.isEmpty()) {
             return;
@@ -111,7 +108,7 @@ public final class OmniDrillModule {
         }
     }
 
-    private static List<BlockPos> findConnectedBlocks(ServerPlayer player, Level world,
+    private static List<BlockPos> findConnectedBlocks(Level world,
                                                        BlockPos center, Block targetBlock,
                                                        Direction.Axis widthAxis, Direction.Axis heightAxis,
                                                        int width, int height, int depth, Direction face) {
@@ -124,12 +121,6 @@ public final class OmniDrillModule {
 
         while (!fila.isEmpty()) {
             BlockPos atual = fila.poll();
-
-            double distSq = player.distanceToSqr(
-                    atual.getX() + 0.5, atual.getY() + 0.5, atual.getZ() + 0.5);
-            if (distSq > MAX_DISTANCIA_SQ) {
-                continue;
-            }
 
             BlockState currentState = world.getBlockState(atual);
             if (!currentState.getBlock().equals(targetBlock)) {
