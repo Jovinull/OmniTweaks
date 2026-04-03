@@ -52,14 +52,17 @@ public final class BaseCommand {
                         // Subcomando: /omnitweaks treecapitator
                         .then(Commands.literal("treecapitator")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "treecapitator")))
-                        // Subcomando: /omnitweaks drill [<largura> <altura>]
+                        // Subcomando: /omnitweaks drill [<largura> <altura> [<profundidade>]]
                         .then(Commands.literal("drill")
                                 // Sem argumentos: alterna (toggle) ligado/desligado
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "omnidrill"))
-                                // Com argumentos: define area e ativa
+                                // Com argumentos: define area e ativa (profundidade padrao 3)
                                 .then(Commands.argument("largura", IntegerArgumentType.integer(1, 8))
                                         .then(Commands.argument("altura", IntegerArgumentType.integer(1, 8))
-                                                .executes(ctx -> activateDrill(ctx, moduleManager)))))
+                                                .executes(ctx -> activateDrill(ctx, moduleManager, 3))
+                                                .then(Commands.argument("profundidade", IntegerArgumentType.integer(1, 8))
+                                                        .executes(ctx -> activateDrill(ctx, moduleManager,
+                                                                IntegerArgumentType.getInteger(ctx, "profundidade")))))))
         );
 
         // Alias: /ot redireciona para /omnitweaks (preserva subcomandos)
@@ -100,19 +103,20 @@ public final class BaseCommand {
      * @return 1 (sucesso) para o Brigadier
      */
     private static int activateDrill(CommandContext<CommandSourceStack> ctx,
-                                      ModuleManager moduleManager) throws CommandSyntaxException {
+                                      ModuleManager moduleManager,
+                                      int depth) throws CommandSyntaxException {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         int width = IntegerArgumentType.getInteger(ctx, "largura");
         int height = IntegerArgumentType.getInteger(ctx, "altura");
 
-        moduleManager.setDrillArea(player.getUUID(), width, height);
+        moduleManager.setDrillArea(player.getUUID(), width, height, depth);
         moduleManager.enable(player.getUUID(), "omnidrill");
 
         Component message = Component.empty()
                 .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
                 .append(Component.literal("OmniDrill ").withStyle(ChatFormatting.WHITE))
                 .append(Component.literal("ativado: ").withStyle(ChatFormatting.GREEN))
-                .append(Component.literal(width + "x" + height).withStyle(ChatFormatting.AQUA));
+                .append(Component.literal(width + "x" + height + "x" + depth).withStyle(ChatFormatting.AQUA));
 
         player.sendSystemMessage(message);
         return 1;

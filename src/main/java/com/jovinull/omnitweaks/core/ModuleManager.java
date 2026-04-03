@@ -92,20 +92,21 @@ public class ModuleManager {
      * @param playerId UUID do jogador
      * @param width    largura da área (1–8)
      * @param height   altura da área (1–8)
+     * @param depth    profundidade da área (1–8)
      */
-    public void setDrillArea(UUID playerId, int width, int height) {
-        drillAreaConfig.put(playerId, new int[]{width, height});
+    public void setDrillArea(UUID playerId, int width, int height, int depth) {
+        drillAreaConfig.put(playerId, new int[]{width, height, depth});
     }
 
     /**
      * Retorna a configuração de área do OmniDrill para o jogador.
-     * Se não houver configuração salva, retorna o padrão 3x3.
+     * Se não houver configuração salva, retorna o padrão 3x3x3.
      *
      * @param playerId UUID do jogador
-     * @return array [largura, altura]
+     * @return array [largura, altura, profundidade]
      */
     public int[] getDrillArea(UUID playerId) {
-        return drillAreaConfig.getOrDefault(playerId, new int[]{3, 3});
+        return drillAreaConfig.getOrDefault(playerId, new int[]{3, 3, 3});
     }
 
     /**

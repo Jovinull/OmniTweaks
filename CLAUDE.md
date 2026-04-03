@@ -67,8 +67,8 @@ Single root command `/omnitweaks` (alias `/ot`) with literal subcommands per mod
 ### Module pattern
 
 Each module (except AutoShulker) registers a Fabric API event listener:
-- **TreeCapitator** — `PlayerBlockBreakEvents.AFTER`: checks log block + axe in hand, BFS 26-neighbor (3×3×3 cube) up to 200 blocks, calls `level.destroyBlock()` + `hurtAndBreak()`
-- **OmniDrill** — `PlayerBlockBreakEvents.BEFORE`: checks `DataComponents.TOOL` + `player.pick()` for face detection, BFS 4-connected in the perpendicular plane within configured area (default 3×3, max 8×8), respects 6-block distance and durability ≥ 2
+- **TreeCapitator** — `PlayerBlockBreakEvents.AFTER`: checks log block + axe in hand, BFS 26-neighbor (3×3×3 cube) up to 200 blocks, calls `level.destroyBlock()` + `hurtAndBreak()` + `awardStat(Stats.BLOCK_MINED)`
+- **OmniDrill** — `PlayerBlockBreakEvents.BEFORE`: checks `DataComponents.TOOL` + `player.pick()` for face detection, BFS in a 3D volume (width × height × depth, default 3×3×3, max 8×8×8) expanding laterally and into the wall via `face.getOpposite()`, respects 6-block distance and durability ≥ 2; yields to TreeCapitator when both are active and block is a log; awards `Stats.BLOCK_MINED` for each extra block
 - **AutoShulker** — No event registration; `ItemEntityMixin` injects into `ItemEntity.playerTouch()` at HEAD (cancellable), delegates to `AutoShulkerModule.handlePickup()`. Iterates player inventory for Shulker Boxes, uses `DataComponents.CONTAINER` / `ItemContainerContents` (no direct NBT), merges then fills empty slots
 
 ### Adding a new module
