@@ -1,0 +1,7 @@
+#!/bin/sh
+printf '[OmniTweaks] Verificando formatação (Spotless)...\n'
+./gradlew spotlessCheck --quiet
+if [ $? -ne 0 ]; then
+  printf '[OmniTweaks] Formatação incorreta. Corrija com: ./gradlew spotlessApply\n'
+  exit 1
+fi

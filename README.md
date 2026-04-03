@@ -21,6 +21,7 @@ O alias `/omnitweaks` também funciona para todos os comandos acima.
 |------------|--------------|------------|
 | **Java** | 25 | MC 26.1.1 exige Java 25 (`java-runtime-epsilon`) |
 | **Git** | qualquer | Para clonar o repositório |
+| **GitHub CLI (`gh`)** | qualquer | Opcional, mas recomendado para abrir PRs via terminal ou ao usar IAs como o Claude Code |
 
 > **Não é necessário ter o Gradle instalado globalmente.** O projeto inclui o Gradle Wrapper (`gradlew.bat`).
 
@@ -82,7 +83,11 @@ gradlew.bat clean build --no-daemon
 
 ## Contribuindo
 
-Contribuições são bem-vindas. Abra uma issue para discutir a ideia ou envie um pull request diretamente — não há processo formal além disso.
+Contribuições são bem-vindas. Abra uma issue para discutir a ideia ou envie um pull request diretamente.
+
+> **Dica para quem usa IA (Claude Code, Copilot, etc.):** instale o [GitHub CLI (`gh`)](https://cli.github.com/) e autentique com `gh auth login`. Com ele disponível no terminal, a IA consegue criar PRs, verificar a CI e listar issues diretamente — sem precisar abrir o navegador.
+
+O projeto usa branch protection em `main`: todo código entra via PR e precisa passar pela CI antes do merge.
 
 ---
 

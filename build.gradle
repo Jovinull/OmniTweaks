@@ -54,6 +54,22 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
+// Instala os git hooks automaticamente ao buildar (funciona para todos os contribuintes)
+tasks.register('installGitHooks') {
+    group = 'setup'
+    description = 'Configura o diretório de git hooks para .githooks/'
+    onlyIf { file('.git').isDirectory() }
+    doLast {
+        exec { commandLine 'git', 'config', 'core.hooksPath', '.githooks' }
+        file('.githooks/pre-commit').setExecutable(true)
+        logger.lifecycle('[OmniTweaks] Git hooks instalados em .githooks/')
+    }
+}
+
+tasks.named('build') {
+    dependsOn 'installGitHooks'
+}
+
 processResources {
     inputs.property "version", project.version
     filesMatching("fabric.mod.json") {

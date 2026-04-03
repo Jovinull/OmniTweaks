@@ -10,5 +10,6 @@
 *.gif binary
 *.zip binary
 
-# Script de build deve ter permissão de execução no Linux/macOS (CI)
+# Scripts que precisam de LF e permissão de execução no Linux/macOS (CI)
 gradlew text eol=lf
+.githooks/pre-commit text eol=lf

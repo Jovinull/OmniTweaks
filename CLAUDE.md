@@ -39,7 +39,7 @@ Import order enforced: `java` → `javax` → blank → `net.minecraft` → `net
 
 All files must: trim trailing whitespace, end with a newline, have no unused imports.
 
-Run `./gradlew spotlessApply` before committing if you edited Java or `.gradle` files.
+A **pre-commit git hook** (`.githooks/pre-commit`) runs `spotlessCheck` automatically on every commit — it is installed for all contributors the first time they run `./gradlew build`. If the hook blocks a commit, fix with `./gradlew spotlessApply` and re-commit.
 
 ## Architecture
 
@@ -83,6 +83,17 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 
 Conventional commits in Portuguese, title only — no body, no co-author signatures.
 Examples: `feat: módulo X`, `fix: corrige Y`, `chore: atualiza Z`
+
+## GitHub CLI (`gh`)
+
+`gh` is installed on this machine. Use it for all GitHub operations: creating PRs, checking CI status, listing issues, etc. Never construct GitHub URLs manually when `gh` can do the job.
+
+```bash
+gh pr create --title "..." --body "..."   # criar PR
+gh pr list                                 # listar PRs abertos
+gh run list                               # ver status da CI
+gh run view <id>                          # detalhes de um run
+```
 
 ## Branch protection
 
