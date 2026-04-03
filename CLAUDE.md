@@ -20,6 +20,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 There are no automated tests — CI validates only that Spotless formatting passes and the project compiles.
 
+**After editing any Java or `.gradle` file, always run `./gradlew build` locally before committing.** The pre-commit hook only checks formatting — it does not compile. The CI build runs only after the push, so a commit with broken code will reach the remote before being caught.
+
 ## Critical: Minecraft 26.1.1 and the no-remap setup
 
 This mod targets **Minecraft 26.1.1**, the first release under Mojang's new versioning scheme (no "1." prefix, released 2026). MC 26.1.1 ships **without bytecode obfuscation**, which changes the entire Gradle/Loom configuration:
