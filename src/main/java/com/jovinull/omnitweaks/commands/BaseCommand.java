@@ -1,5 +1,8 @@
 package com.jovinull.omnitweaks.commands;
 
+import java.util.Set;
+import java.util.UUID;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -52,6 +55,9 @@ public final class BaseCommand {
                         // Subcomando: /omnitweaks treecapitator
                         .then(Commands.literal("treecapitator")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "treecapitator")))
+                        // Subcomando: /omnitweaks all — ativa ou desativa todos os módulos
+                        .then(Commands.literal("all")
+                                .executes(ctx -> toggleAll(ctx, moduleManager)))
                         // Subcomando: /omnitweaks drill [<largura> <altura> [<profundidade>]]
                         .then(Commands.literal("drill")
                                 // Sem argumentos: alterna (toggle) ligado/desligado
@@ -67,6 +73,37 @@ public final class BaseCommand {
 
         // Alias: /ot redireciona para /omnitweaks (preserva subcomandos)
         dispatcher.register(Commands.literal("ot").redirect(root));
+    }
+
+    /**
+     * Ativa todos os módulos se algum estiver inativo; desativa todos se todos estiverem ativos.
+     *
+     * @return 1 (sucesso) para o Brigadier
+     */
+    private static int toggleAll(CommandContext<CommandSourceStack> ctx,
+                                  ModuleManager moduleManager) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        UUID uuid = player.getUUID();
+        Set<String> modules = moduleManager.getAvailableModules();
+
+        boolean allEnabled = modules.stream().allMatch(m -> moduleManager.isEnabled(uuid, m));
+
+        if (allEnabled) {
+            modules.forEach(m -> moduleManager.disable(uuid, m));
+        } else {
+            modules.forEach(m -> moduleManager.enable(uuid, m));
+        }
+
+        Component status = allEnabled
+                ? Component.literal("desativados.").withStyle(ChatFormatting.RED)
+                : Component.literal("ativados!").withStyle(ChatFormatting.GREEN);
+
+        player.sendSystemMessage(Component.empty()
+                .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal("Todos os módulos ").withStyle(ChatFormatting.WHITE))
+                .append(status));
+
+        return 1;
     }
 
     /**

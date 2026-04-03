@@ -87,6 +87,20 @@ public class ModuleManager {
     }
 
     /**
+     * Desativa um módulo para o jogador sem alternar.
+     * Diferente de {@link #toggle}, este método sempre desativa.
+     *
+     * @param playerId UUID do jogador
+     * @param module   identificador do módulo
+     */
+    public void disable(UUID playerId, String module) {
+        Set<String> modules = playerModules.get(playerId);
+        if (modules != null) {
+            modules.remove(module);
+        }
+    }
+
+    /**
      * Define a configuração de área do OmniDrill para o jogador.
      *
      * @param playerId UUID do jogador
