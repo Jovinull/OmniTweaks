@@ -83,3 +83,14 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 
 Conventional commits in Portuguese, title only — no body, no co-author signatures.
 Examples: `feat: módulo X`, `fix: corrige Y`, `chore: atualiza Z`
+
+## Branch protection
+
+`main` tem branch protection ativa: **push direto é bloqueado**. A CI ("Verificação e build") precisa passar antes do merge.
+
+Fluxo obrigatório para qualquer alteração:
+1. Criar um branch (`git checkout -b <nome>`)
+2. Commitar no branch
+3. Push do branch (`git push -u origin <nome>`)
+4. Abrir PR via `gh pr create`
+5. Aguardar a CI passar e fazer merge
