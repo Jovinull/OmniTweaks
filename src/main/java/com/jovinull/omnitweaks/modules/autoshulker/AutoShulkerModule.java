@@ -5,6 +5,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -103,12 +104,14 @@ public final class AutoShulkerModule {
 
         if (remaining.isEmpty()) {
             // Item totalmente absorvido pelas Shulker Boxes
+            player.awardStat(Stats.ITEM_PICKED_UP.get(original.getItem()), originalCount);
             playPickupEffects(player, itemEntity, originalCount);
             itemEntity.discard();
             return true;
         }
 
         // Item parcialmente absorvido: atualiza a entidade com a quantidade restante
+        player.awardStat(Stats.ITEM_PICKED_UP.get(original.getItem()), consumed);
         playPickupEffects(player, itemEntity, consumed);
         itemEntity.setItem(remaining);
         return false;
