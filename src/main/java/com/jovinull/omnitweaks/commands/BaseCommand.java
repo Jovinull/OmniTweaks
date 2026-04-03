@@ -2,6 +2,7 @@ package com.jovinull.omnitweaks.commands;
 
 import com.jovinull.omnitweaks.core.ModuleManager;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -48,6 +49,14 @@ public final class BaseCommand {
                         // Subcomando: /omnitweaks treecapitator
                         .then(CommandManager.literal("treecapitator")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "treecapitator")))
+                        // Subcomando: /omnitweaks drill [<largura> <altura>]
+                        .then(CommandManager.literal("drill")
+                                // Sem argumentos: alterna (toggle) ligado/desligado
+                                .executes(ctx -> toggleModule(ctx, moduleManager, "omnidrill"))
+                                // Com argumentos: define area e ativa
+                                .then(CommandManager.argument("largura", IntegerArgumentType.integer(1, 8))
+                                        .then(CommandManager.argument("altura", IntegerArgumentType.integer(1, 8))
+                                                .executes(ctx -> activateDrill(ctx, moduleManager)))))
         );
 
         // Alias: /ot redireciona para /omnitweaks (preserva subcomandos)
@@ -82,12 +91,38 @@ public final class BaseCommand {
     }
 
     /**
+     * Ativa o OmniDrill com a configuração de área especificada nos argumentos.
+     * Sempre ativa o módulo (não alterna) e salva a nova configuração.
+     *
+     * @return 1 (sucesso) para o Brigadier
+     */
+    private static int activateDrill(CommandContext<ServerCommandSource> ctx,
+                                      ModuleManager moduleManager) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        int width = IntegerArgumentType.getInteger(ctx, "largura");
+        int height = IntegerArgumentType.getInteger(ctx, "altura");
+
+        moduleManager.setDrillArea(player.getUuid(), width, height);
+        moduleManager.enable(player.getUuid(), "omnidrill");
+
+        Text message = Text.empty()
+                .append(Text.literal("[OmniTweaks] ").formatted(Formatting.GOLD))
+                .append(Text.literal("OmniDrill ").formatted(Formatting.WHITE))
+                .append(Text.literal("ativado: ").formatted(Formatting.GREEN))
+                .append(Text.literal(width + "x" + height).formatted(Formatting.AQUA));
+
+        player.sendMessage(message, false);
+        return 1;
+    }
+
+    /**
      * Converte o identificador interno do módulo em nome legível para o jogador.
      */
     private static String formatModuleName(String module) {
         return switch (module) {
             case "autoshulker" -> "AutoShulker";
             case "treecapitator" -> "TreeCapitator";
+            case "omnidrill" -> "OmniDrill";
             default -> module;
         };
     }

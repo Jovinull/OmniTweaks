@@ -19,10 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ModuleManager {
 
     /** Identificadores de todos os módulos registrados no sistema. */
-    private static final Set<String> AVAILABLE_MODULES = Set.of("autoshulker", "treecapitator");
+    private static final Set<String> AVAILABLE_MODULES = Set.of("autoshulker", "treecapitator", "omnidrill");
 
     /** Mapa de UUID do jogador para o conjunto de módulos ativados. */
     private final Map<UUID, Set<String>> playerModules = new ConcurrentHashMap<>();
+
+    /** Configuração de área do OmniDrill por jogador [largura, altura]. Padrão: 3x3. */
+    private final Map<UUID, int[]> drillAreaConfig = new ConcurrentHashMap<>();
 
     /**
      * Alterna (toggle) o estado de um módulo para o jogador informado.
@@ -69,12 +72,50 @@ public class ModuleManager {
     }
 
     /**
-     * Remove todos os dados de módulos de um jogador.
+     * Ativa um módulo para o jogador sem alternar.
+     * Diferente de {@link #toggle}, este método sempre ativa.
+     *
+     * @param playerId UUID do jogador
+     * @param module   identificador do módulo
+     */
+    public void enable(UUID playerId, String module) {
+        if (!AVAILABLE_MODULES.contains(module)) {
+            throw new IllegalArgumentException("Módulo desconhecido: " + module);
+        }
+        Set<String> modules = playerModules.computeIfAbsent(playerId, k -> ConcurrentHashMap.newKeySet());
+        modules.add(module);
+    }
+
+    /**
+     * Define a configuração de área do OmniDrill para o jogador.
+     *
+     * @param playerId UUID do jogador
+     * @param width    largura da área (1–8)
+     * @param height   altura da área (1–8)
+     */
+    public void setDrillArea(UUID playerId, int width, int height) {
+        drillAreaConfig.put(playerId, new int[]{width, height});
+    }
+
+    /**
+     * Retorna a configuração de área do OmniDrill para o jogador.
+     * Se não houver configuração salva, retorna o padrão 3x3.
+     *
+     * @param playerId UUID do jogador
+     * @return array [largura, altura]
+     */
+    public int[] getDrillArea(UUID playerId) {
+        return drillAreaConfig.getOrDefault(playerId, new int[]{3, 3});
+    }
+
+    /**
+     * Remove todos os dados de módulos e configurações de um jogador.
      * Pode ser chamado ao desconectar para liberar memória.
      *
      * @param playerId UUID do jogador
      */
     public void clearPlayer(UUID playerId) {
         playerModules.remove(playerId);
+        drillAreaConfig.remove(playerId);
     }
 }
