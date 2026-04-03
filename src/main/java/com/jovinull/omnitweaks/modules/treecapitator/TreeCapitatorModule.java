@@ -3,15 +3,15 @@ package com.jovinull.omnitweaks.modules.treecapitator;
 import com.jovinull.omnitweaks.OmniTweaks;
 import com.jovinull.omnitweaks.core.ModuleManager;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
@@ -28,7 +28,7 @@ import java.util.*;
  *   <li>Executa BFS (busca em largura) nos 26 vizinhos de cada tronco para
  *       encontrar todos os troncos conectados, respeitando o limite de seguranca.</li>
  *   <li>Quebra cada tronco encontrado programaticamente via
- *       {@link World#breakBlock(BlockPos, boolean, net.minecraft.entity.Entity)}
+ *       {@link Level#destroyBlock(BlockPos, boolean, net.minecraft.world.entity.Entity)}
  *       para garantir que os drops corretos sejam gerados.</li>
  *   <li>Aplica dano de durabilidade ao machado proporcional a quantidade de
  *       blocos extras quebrados. O metodo nativo lida com o encantamento Inquebravel.</li>
@@ -52,11 +52,11 @@ public final class TreeCapitatorModule {
     public static void register() {
         PlayerBlockBreakEvents.AFTER.register((world, player, pos, state, blockEntity) -> {
             // Apenas processa no servidor e para jogadores reais
-            if (world.isClient() || !(player instanceof ServerPlayerEntity serverPlayer)) {
+            if (world.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
                 return;
             }
 
-            handleBlockBreak(serverPlayer, (ServerWorld) world, pos, state);
+            handleBlockBreak(serverPlayer, (ServerLevel) world, pos, state);
         });
     }
 
@@ -72,21 +72,21 @@ public final class TreeCapitatorModule {
      * @param brokenPos posicao do bloco original (ja e ar neste ponto)
      * @param brokenState estado do bloco antes de ser quebrado
      */
-    private static void handleBlockBreak(ServerPlayerEntity player, ServerWorld world,
+    private static void handleBlockBreak(ServerPlayer player, ServerLevel world,
                                           BlockPos brokenPos, BlockState brokenState) {
         // Verifica se o modulo esta ativo para o jogador
         ModuleManager manager = OmniTweaks.getModuleManager();
-        if (manager == null || !manager.isEnabled(player.getUuid(), "treecapitator")) {
+        if (manager == null || !manager.isEnabled(player.getUUID(), "treecapitator")) {
             return;
         }
 
         // Verifica se o bloco quebrado era um tronco
-        if (!brokenState.isIn(BlockTags.LOGS)) {
+        if (!brokenState.is(BlockTags.LOGS)) {
             return;
         }
 
         // Verifica se o jogador esta segurando um machado na mao principal
-        ItemStack heldItem = player.getMainHandStack();
+        ItemStack heldItem = player.getMainHandItem();
         if (!(heldItem.getItem() instanceof AxeItem)) {
             return;
         }
@@ -100,12 +100,12 @@ public final class TreeCapitatorModule {
 
         // Quebra todos os troncos encontrados (gera drops normais)
         for (BlockPos logPos : troncosConectados) {
-            world.breakBlock(logPos, true, player);
+            world.destroyBlock(logPos, true, player);
         }
 
         // Aplica dano de durabilidade ao machado (1 por bloco extra quebrado)
         // O metodo nativo lida com o encantamento Inquebravel automaticamente
-        heldItem.damage(troncosConectados.size(), player, EquipmentSlot.MAINHAND);
+        heldItem.hurtAndBreak(troncosConectados.size(), player, EquipmentSlot.MAINHAND);
     }
 
     /**
@@ -120,7 +120,7 @@ public final class TreeCapitatorModule {
      * @param startPos posicao do bloco quebrado originalmente (ja e ar neste ponto)
      * @return lista de posicoes de troncos conectados (sem incluir a posicao original)
      */
-    private static List<BlockPos> findConnectedLogs(World world, BlockPos startPos) {
+    private static List<BlockPos> findConnectedLogs(Level world, BlockPos startPos) {
         List<BlockPos> resultado = new ArrayList<>();
         Set<BlockPos> visitados = new HashSet<>();
         Queue<BlockPos> fila = new LinkedList<>();
@@ -136,7 +136,7 @@ public final class TreeCapitatorModule {
             BlockState state = world.getBlockState(atual);
 
             // Verifica se o bloco atual e um tronco
-            if (!state.isIn(BlockTags.LOGS)) {
+            if (!state.is(BlockTags.LOGS)) {
                 continue;
             }
 
@@ -170,7 +170,7 @@ public final class TreeCapitatorModule {
                         continue;
                     }
 
-                    BlockPos vizinho = centro.add(dx, dy, dz);
+                    BlockPos vizinho = centro.offset(dx, dy, dz);
 
                     // add() retorna true se o elemento era novo no conjunto
                     if (visitados.add(vizinho)) {

@@ -2,17 +2,17 @@ package com.jovinull.omnitweaks.modules.autoshulker;
 
 import com.jovinull.omnitweaks.OmniTweaks;
 import com.jovinull.omnitweaks.core.ModuleManager;
-import net.minecraft.block.Block;
-import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ContainerComponent;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 
 /**
  * Módulo AutoShulker — ao coletar itens do chão, tenta inseri-los
@@ -52,13 +52,13 @@ public final class AutoShulkerModule {
      * @return {@code true} se o item foi <b>totalmente</b> consumido e o evento
      *         vanilla deve ser cancelado; {@code false} caso contrário
      */
-    public static boolean handlePickup(ServerPlayerEntity player, ItemEntity itemEntity) {
+    public static boolean handlePickup(ServerPlayer player, ItemEntity itemEntity) {
         ModuleManager manager = OmniTweaks.getModuleManager();
-        if (manager == null || !manager.isEnabled(player.getUuid(), "autoshulker")) {
+        if (manager == null || !manager.isEnabled(player.getUUID(), "autoshulker")) {
             return false;
         }
 
-        ItemStack original = itemEntity.getStack();
+        ItemStack original = itemEntity.getItem();
         if (original.isEmpty()) {
             return false;
         }
@@ -68,18 +68,18 @@ public final class AutoShulkerModule {
             return false;
         }
 
-        PlayerInventory inventory = player.getInventory();
+        Inventory inventory = player.getInventory();
         ItemStack remaining = original.copy();
         int originalCount = remaining.getCount();
         boolean anyModified = false;
 
         // Percorre todos os slots do inventário buscando Shulker Boxes
-        for (int slot = 0; slot < inventory.size(); slot++) {
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             if (remaining.isEmpty()) {
                 break;
             }
 
-            ItemStack slotStack = inventory.getStack(slot);
+            ItemStack slotStack = inventory.getItem(slot);
 
             // Pula slots vazios e itens que não são Shulker Box
             if (slotStack.isEmpty() || slotStack.getCount() != 1) {
@@ -109,7 +109,7 @@ public final class AutoShulkerModule {
 
         // Item parcialmente absorvido: atualiza a entidade com a quantidade restante
         playPickupEffects(player, itemEntity, consumed);
-        itemEntity.setStack(remaining);
+        itemEntity.setItem(remaining);
         return false;
     }
 
@@ -131,12 +131,12 @@ public final class AutoShulkerModule {
      */
     private static boolean tryInsertIntoShulker(ItemStack shulkerStack, ItemStack remaining) {
         // Obtém o conteúdo atual da Shulker Box via Data Component
-        ContainerComponent container = shulkerStack.getOrDefault(
-                DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT);
+        ItemContainerContents container = shulkerStack.getOrDefault(
+                DataComponents.CONTAINER, ItemContainerContents.EMPTY);
 
         // Copia o conteúdo para uma lista mutável de 27 slots
-        DefaultedList<ItemStack> contents = DefaultedList.ofSize(SHULKER_SLOTS, ItemStack.EMPTY);
-        container.copyTo(contents);
+        NonNullList<ItemStack> contents = NonNullList.withSize(SHULKER_SLOTS, ItemStack.EMPTY);
+        container.copyInto(contents);
 
         boolean modified = false;
 
@@ -148,18 +148,18 @@ public final class AutoShulkerModule {
             }
 
             // Verifica se o item e seus componentes são idênticos (ignora contagem)
-            if (!ItemStack.areItemsAndComponentsEqual(slot, remaining)) {
+            if (!ItemStack.isSameItemSameComponents(slot, remaining)) {
                 continue;
             }
 
-            int spaceAvailable = slot.getMaxCount() - slot.getCount();
+            int spaceAvailable = slot.getMaxStackSize() - slot.getCount();
             if (spaceAvailable <= 0) {
                 continue;
             }
 
             int transfer = Math.min(remaining.getCount(), spaceAvailable);
-            slot.increment(transfer);
-            remaining.decrement(transfer);
+            slot.grow(transfer);
+            remaining.shrink(transfer);
             modified = true;
         }
 
@@ -169,15 +169,15 @@ public final class AutoShulkerModule {
                 continue;
             }
 
-            int transfer = Math.min(remaining.getCount(), remaining.getMaxCount());
+            int transfer = Math.min(remaining.getCount(), remaining.getMaxStackSize());
             contents.set(i, remaining.copyWithCount(transfer));
-            remaining.decrement(transfer);
+            remaining.shrink(transfer);
             modified = true;
         }
 
         // Salva o Data Component atualizado de volta na ItemStack da Shulker Box
         if (modified) {
-            shulkerStack.set(DataComponentTypes.CONTAINER, ContainerComponent.fromStacks(contents));
+            shulkerStack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(contents));
         }
 
         return modified;
@@ -191,16 +191,16 @@ public final class AutoShulkerModule {
      * @param itemEntity entidade do item coletado
      * @param count      quantidade de itens coletados (para a animação)
      */
-    private static void playPickupEffects(ServerPlayerEntity player, ItemEntity itemEntity, int count) {
+    private static void playPickupEffects(ServerPlayer player, ItemEntity itemEntity, int count) {
         // Animação de coleta: o item "voa" até o jogador para todos os jogadores próximos
-        player.sendPickup(itemEntity, count);
+        player.take(itemEntity, count);
 
         // Som de coleta vanilla (mesmos parâmetros usados no código original do Minecraft)
-        player.getWorld().playSound(
+        player.level().playSound(
                 null,
                 player.getX(), player.getY(), player.getZ(),
-                SoundEvents.ENTITY_ITEM_PICKUP,
-                SoundCategory.PLAYERS,
+                SoundEvents.ITEM_PICKUP,
+                SoundSource.PLAYERS,
                 0.2f,
                 ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f
         );
@@ -213,6 +213,6 @@ public final class AutoShulkerModule {
      * @return {@code true} se for uma Shulker Box
      */
     private static boolean isShulkerBox(ItemStack stack) {
-        return Block.getBlockFromItem(stack.getItem()) instanceof ShulkerBoxBlock;
+        return Block.byItem(stack.getItem()) instanceof ShulkerBoxBlock;
     }
 }

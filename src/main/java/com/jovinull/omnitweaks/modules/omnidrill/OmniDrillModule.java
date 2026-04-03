@@ -3,18 +3,18 @@ package com.jovinull.omnitweaks.modules.omnidrill;
 import com.jovinull.omnitweaks.OmniTweaks;
 import com.jovinull.omnitweaks.core.ModuleManager;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 import java.util.*;
 
@@ -57,8 +57,8 @@ public final class OmniDrillModule {
      */
     public static void register() {
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
-            if (!world.isClient() && player instanceof ServerPlayerEntity serverPlayer) {
-                handleBlockBreak(serverPlayer, (ServerWorld) world, pos, state);
+            if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+                handleBlockBreak(serverPlayer, (ServerLevel) world, pos, state);
             }
             // Sempre permite a quebra do bloco original
             return true;
@@ -74,28 +74,28 @@ public final class OmniDrillModule {
      * @param pos       posicao do bloco sendo quebrado (ainda intacto neste ponto)
      * @param state     estado do bloco sendo quebrado
      */
-    private static void handleBlockBreak(ServerPlayerEntity player, ServerWorld world,
+    private static void handleBlockBreak(ServerPlayer player, ServerLevel world,
                                           BlockPos pos, BlockState state) {
         // Verifica se o modulo esta ativo para o jogador
         ModuleManager manager = OmniTweaks.getModuleManager();
-        if (manager == null || !manager.isEnabled(player.getUuid(), "omnidrill")) {
+        if (manager == null || !manager.isEnabled(player.getUUID(), "omnidrill")) {
             return;
         }
 
         // Verifica se o jogador segura uma ferramenta de mineracao (possui o componente TOOL)
-        ItemStack heldItem = player.getMainHandStack();
-        if (!heldItem.contains(DataComponentTypes.TOOL)) {
+        ItemStack heldItem = player.getMainHandItem();
+        if (!heldItem.has(DataComponents.TOOL)) {
             return;
         }
 
         // Determina a face sendo minerada via raycast
-        HitResult hitResult = player.raycast(6.0, 1.0f, false);
+        HitResult hitResult = player.pick(6.0, 1.0f, false);
         if (!(hitResult instanceof BlockHitResult blockHitResult)
                 || !blockHitResult.getBlockPos().equals(pos)) {
             return;
         }
 
-        Direction face = blockHitResult.getSide();
+        Direction face = blockHitResult.getDirection();
         Direction.Axis faceAxis = face.getAxis();
 
         // Define os eixos do plano perpendicular a face de mineracao
@@ -108,7 +108,7 @@ public final class OmniDrillModule {
         }
 
         // Obtem a configuracao de area do jogador (padrao 3x3)
-        int[] area = manager.getDrillArea(player.getUuid());
+        int[] area = manager.getDrillArea(player.getUUID());
         int width = area[0];
         int height = area[1];
 
@@ -126,17 +126,17 @@ public final class OmniDrillModule {
         // Quebra cada bloco extra, verificando durabilidade antes de cada um
         for (BlockPos blockPos : blocosConectados) {
             // Verifica se a ferramenta esta prestes a quebrar (durabilidade <= 1)
-            int durabilidadeRestante = heldItem.getMaxDamage() - heldItem.getDamage();
+            int durabilidadeRestante = heldItem.getMaxDamage() - heldItem.getDamageValue();
             if (durabilidadeRestante <= 1) {
                 break; // Para imediatamente para preservar a ferramenta
             }
 
             // Quebra o bloco com drops normais
-            world.breakBlock(blockPos, true, player);
+            world.destroyBlock(blockPos, true, player);
 
             // Aplica dano de durabilidade (1 por bloco extra)
             // O metodo nativo lida com o encantamento Inquebravel
-            heldItem.damage(1, player, EquipmentSlot.MAINHAND);
+            heldItem.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
         }
     }
 
@@ -158,7 +158,7 @@ public final class OmniDrillModule {
      * @param height      altura da area de mineracao
      * @return lista de posicoes conectadas (sem incluir a posicao central)
      */
-    private static List<BlockPos> findConnectedBlocks(ServerPlayerEntity player, World world,
+    private static List<BlockPos> findConnectedBlocks(ServerPlayer player, Level world,
                                                        BlockPos center, Block targetBlock,
                                                        Direction.Axis widthAxis, Direction.Axis heightAxis,
                                                        int width, int height) {
@@ -176,7 +176,7 @@ public final class OmniDrillModule {
             BlockPos atual = fila.poll();
 
             // Verifica distancia do jogador (maximo 6 blocos)
-            double distSq = player.squaredDistanceTo(
+            double distSq = player.distanceToSqr(
                     atual.getX() + 0.5, atual.getY() + 0.5, atual.getZ() + 0.5);
             if (distSq > MAX_DISTANCIA_SQ) {
                 continue;
@@ -267,9 +267,9 @@ public final class OmniDrillModule {
      */
     private static BlockPos offsetOnAxis(BlockPos pos, Direction.Axis axis, int offset) {
         return switch (axis) {
-            case X -> pos.add(offset, 0, 0);
-            case Y -> pos.add(0, offset, 0);
-            case Z -> pos.add(0, 0, offset);
+            case X -> pos.offset(offset, 0, 0);
+            case Y -> pos.offset(0, offset, 0);
+            case Z -> pos.offset(0, 0, offset);
         };
     }
 

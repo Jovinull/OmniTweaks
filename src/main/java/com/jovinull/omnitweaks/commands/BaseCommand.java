@@ -7,11 +7,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.ChatFormatting;
 
 /**
  * Registra o comando base {@code /omnitweaks} (alias {@code /ot})
@@ -38,29 +38,29 @@ public final class BaseCommand {
                 registerCommands(dispatcher, moduleManager));
     }
 
-    private static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher,
+    private static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher,
                                           ModuleManager moduleManager) {
         // Comando principal: /omnitweaks
-        LiteralCommandNode<ServerCommandSource> root = dispatcher.register(
-                CommandManager.literal("omnitweaks")
+        LiteralCommandNode<CommandSourceStack> root = dispatcher.register(
+                Commands.literal("omnitweaks")
                         // Subcomando: /omnitweaks autoshulker
-                        .then(CommandManager.literal("autoshulker")
+                        .then(Commands.literal("autoshulker")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "autoshulker")))
                         // Subcomando: /omnitweaks treecapitator
-                        .then(CommandManager.literal("treecapitator")
+                        .then(Commands.literal("treecapitator")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "treecapitator")))
                         // Subcomando: /omnitweaks drill [<largura> <altura>]
-                        .then(CommandManager.literal("drill")
+                        .then(Commands.literal("drill")
                                 // Sem argumentos: alterna (toggle) ligado/desligado
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "omnidrill"))
                                 // Com argumentos: define area e ativa
-                                .then(CommandManager.argument("largura", IntegerArgumentType.integer(1, 8))
-                                        .then(CommandManager.argument("altura", IntegerArgumentType.integer(1, 8))
+                                .then(Commands.argument("largura", IntegerArgumentType.integer(1, 8))
+                                        .then(Commands.argument("altura", IntegerArgumentType.integer(1, 8))
                                                 .executes(ctx -> activateDrill(ctx, moduleManager)))))
         );
 
         // Alias: /ot redireciona para /omnitweaks (preserva subcomandos)
-        dispatcher.register(CommandManager.literal("ot").redirect(root));
+        dispatcher.register(Commands.literal("ot").redirect(root));
     }
 
     /**
@@ -69,24 +69,24 @@ public final class BaseCommand {
      *
      * @return 1 (sucesso) para o Brigadier
      */
-    private static int toggleModule(CommandContext<ServerCommandSource> ctx,
+    private static int toggleModule(CommandContext<CommandSourceStack> ctx,
                                      ModuleManager moduleManager,
                                      String module) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        boolean enabled = moduleManager.toggle(player.getUuid(), module);
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        boolean enabled = moduleManager.toggle(player.getUUID(), module);
 
         String displayName = formatModuleName(module);
 
-        Text status = enabled
-                ? Text.literal("ativado!").formatted(Formatting.GREEN)
-                : Text.literal("desativado.").formatted(Formatting.RED);
+        Component status = enabled
+                ? Component.literal("ativado!").withStyle(ChatFormatting.GREEN)
+                : Component.literal("desativado.").withStyle(ChatFormatting.RED);
 
-        Text message = Text.empty()
-                .append(Text.literal("[OmniTweaks] ").formatted(Formatting.GOLD))
-                .append(Text.literal(displayName + " ").formatted(Formatting.WHITE))
+        Component message = Component.empty()
+                .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal(displayName + " ").withStyle(ChatFormatting.WHITE))
                 .append(status);
 
-        player.sendMessage(message, false);
+        player.sendSystemMessage(message);
         return 1;
     }
 
@@ -96,22 +96,22 @@ public final class BaseCommand {
      *
      * @return 1 (sucesso) para o Brigadier
      */
-    private static int activateDrill(CommandContext<ServerCommandSource> ctx,
+    private static int activateDrill(CommandContext<CommandSourceStack> ctx,
                                       ModuleManager moduleManager) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         int width = IntegerArgumentType.getInteger(ctx, "largura");
         int height = IntegerArgumentType.getInteger(ctx, "altura");
 
-        moduleManager.setDrillArea(player.getUuid(), width, height);
-        moduleManager.enable(player.getUuid(), "omnidrill");
+        moduleManager.setDrillArea(player.getUUID(), width, height);
+        moduleManager.enable(player.getUUID(), "omnidrill");
 
-        Text message = Text.empty()
-                .append(Text.literal("[OmniTweaks] ").formatted(Formatting.GOLD))
-                .append(Text.literal("OmniDrill ").formatted(Formatting.WHITE))
-                .append(Text.literal("ativado: ").formatted(Formatting.GREEN))
-                .append(Text.literal(width + "x" + height).formatted(Formatting.AQUA));
+        Component message = Component.empty()
+                .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal("OmniDrill ").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("ativado: ").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal(width + "x" + height).withStyle(ChatFormatting.AQUA));
 
-        player.sendMessage(message, false);
+        player.sendSystemMessage(message);
         return 1;
     }
 

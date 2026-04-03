@@ -1,9 +1,9 @@
 package com.jovinull.omnitweaks.mixin;
 
 import com.jovinull.omnitweaks.modules.autoshulker.AutoShulkerModule;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Mixin na classe {@link ItemEntity} para interceptar a coleta de itens pelo jogador.
  *
- * <p>Injeta no início de {@code onPlayerCollision} (antes de qualquer lógica vanilla)
+ * <p>Injeta no início de {@code playerTouch} (antes de qualquer lógica vanilla)
  * e delega ao {@link AutoShulkerModule}. Se o módulo consumir todo o item,
  * o evento vanilla é cancelado via {@link CallbackInfo#cancel()}.</p>
  *
@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * <ul>
  *   <li>Ignora execução no lado cliente (apenas server-side).</li>
  *   <li>Respeita o delay de coleta do item ({@code pickupDelay > 0}).</li>
- *   <li>Garante que a entidade é um {@link ServerPlayerEntity}.</li>
+ *   <li>Garante que a entidade é um {@link ServerPlayer}.</li>
  * </ul>
  */
 @Mixin(ItemEntity.class)
@@ -30,10 +30,10 @@ public abstract class ItemEntityMixin {
     @Shadow
     private int pickupDelay;
 
-    @Inject(method = "onPlayerCollision", at = @At("HEAD"), cancellable = true)
-    private void omnitweaks$beforePickup(PlayerEntity player, CallbackInfo ci) {
+    @Inject(method = "playerTouch", at = @At("HEAD"), cancellable = true)
+    private void omnitweaks$beforePickup(Player player, CallbackInfo ci) {
         // Apenas server-side
-        if (player.getWorld().isClient()) {
+        if (player.level().isClientSide()) {
             return;
         }
 
@@ -43,7 +43,7 @@ public abstract class ItemEntityMixin {
         }
 
         // Garante que é um jogador do servidor
-        if (!(player instanceof ServerPlayerEntity serverPlayer)) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
 
