@@ -82,6 +82,16 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 4. Call `<Name>Module.register()` in `OmniTweaks.onInitialize()`
 5. If Mixin-based: add the mixin class and declare it in `omnitweaks.mixins.json`
 
+## GitHub workflow
+
+`gh` CLI is at `/c/Program Files/GitHub CLI/gh` (not in PATH on this machine — use the full path).
+
+**After every `git push` of a feature/fix branch, immediately create a PR with `gh pr create`.** Never leave a pushed branch without a PR. The CI workflow ("Verificação e build") must pass before merging; direct pushes to `main` are blocked.
+
+```bash
+"/c/Program Files/GitHub CLI/gh" pr create --title "..." --body "..."
+```
+
 ## Commit conventions
 
 Conventional commits in Portuguese, title only — no body, no co-author signatures.
