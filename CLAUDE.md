@@ -88,6 +88,8 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 
 `gh` CLI is at `/c/Program Files/GitHub CLI/gh` (not in PATH on this machine — use the full path).
 
+`main` tem branch protection: push direto é bloqueado, a CI ("Verificação e build") precisa passar. Auto-merge está habilitado no repositório.
+
 Fluxo obrigatório para qualquer tarefa:
 
 1. **Antes de criar um branch**: atualizar a `main` local
@@ -95,39 +97,19 @@ Fluxo obrigatório para qualquer tarefa:
    git checkout main && git pull
    ```
 2. Criar o branch e desenvolver normalmente
-3. **Após o `git push`**: criar o PR imediatamente — nunca deixar branch sem PR
+3. **Após o `git push`**: criar o PR e habilitar auto-merge — nunca deixar branch sem PR
    ```bash
    "/c/Program Files/GitHub CLI/gh" pr create --title "..." --body "..."
+   "/c/Program Files/GitHub CLI/gh" pr merge --auto --squash
    ```
-4. **Após criar o PR**: voltar para `main` e puxar novamente
+4. **Após habilitar o auto-merge**: voltar para `main` e puxar
    ```bash
    git checkout main && git pull
    ```
 
 Exception: se a CI falhar, permanecer na branch para corrigir. Após o fix ser pushed, voltar à `main`.
 
-The CI workflow ("Verificação e build") must pass before merging; direct pushes to `main` are blocked.
-
-**After creating the PR, always return to `main` and pull** so the local working tree is clean and up to date for the next task:
-
-```bash
-git checkout main && git pull
-```
-
-Exception: if the CI fails and the branch needs a fix, stay on the branch to fix it. Once the fix is pushed, return to `main`.
-
 ## Commit conventions
 
 Conventional commits in Portuguese, title only — no body, no co-author signatures.
 Examples: `feat: módulo X`, `fix: corrige Y`, `chore: atualiza Z`
-
-## Branch protection
-
-`main` tem branch protection ativa: **push direto é bloqueado**. A CI ("Verificação e build") precisa passar antes do merge.
-
-Fluxo obrigatório para qualquer alteração:
-1. Criar um branch (`git checkout -b <nome>`)
-2. Commitar no branch
-3. Push do branch (`git push -u origin <nome>`)
-4. Abrir PR via `gh pr create`
-5. Aguardar a CI passar e fazer merge
