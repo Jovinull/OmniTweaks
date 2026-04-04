@@ -86,11 +86,25 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 
 `gh` CLI is at `/c/Program Files/GitHub CLI/gh` (not in PATH on this machine — use the full path).
 
-**After every `git push` of a feature/fix branch, immediately create a PR with `gh pr create`.** Never leave a pushed branch without a PR. The CI workflow ("Verificação e build") must pass before merging; direct pushes to `main` are blocked.
+Fluxo obrigatório para qualquer tarefa:
 
-```bash
-"/c/Program Files/GitHub CLI/gh" pr create --title "..." --body "..."
-```
+1. **Antes de criar um branch**: atualizar a `main` local
+   ```bash
+   git checkout main && git pull
+   ```
+2. Criar o branch e desenvolver normalmente
+3. **Após o `git push`**: criar o PR imediatamente — nunca deixar branch sem PR
+   ```bash
+   "/c/Program Files/GitHub CLI/gh" pr create --title "..." --body "..."
+   ```
+4. **Após criar o PR**: voltar para `main` e puxar novamente
+   ```bash
+   git checkout main && git pull
+   ```
+
+Exception: se a CI falhar, permanecer na branch para corrigir. Após o fix ser pushed, voltar à `main`.
+
+The CI workflow ("Verificação e build") must pass before merging; direct pushes to `main` are blocked.
 
 ## Commit conventions
 
