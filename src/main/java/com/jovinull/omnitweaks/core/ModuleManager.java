@@ -19,13 +19,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ModuleManager {
 
     /** Identificadores de todos os módulos registrados no sistema. */
-    private static final Set<String> AVAILABLE_MODULES = Set.of("autoshulker", "treecapitator", "omnidrill", "quickdump", "omniplanter");
+    private static final Set<String> AVAILABLE_MODULES = Set.of(
+            "autoshulker", "treecapitator", "omnidrill", "quickdump", "omniplanter", "omnileveler");
 
     /** Mapa de UUID do jogador para o conjunto de módulos ativados. */
     private final Map<UUID, Set<String>> playerModules = new ConcurrentHashMap<>();
 
-    /** Configuração de área do OmniDrill por jogador [largura, altura]. Padrão: 3x3. */
+    /** Configuração de área do OmniDrill por jogador [largura, altura, profundidade]. Padrão: 3x3x3. */
     private final Map<UUID, int[]> drillAreaConfig = new ConcurrentHashMap<>();
+
+    /** Configuração de altura mínima (Y) do OmniLeveler por jogador. */
+    private final Map<UUID, Integer> levelerMinY = new ConcurrentHashMap<>();
 
     /**
      * Alterna (toggle) o estado de um módulo para o jogador informado.
@@ -124,6 +128,34 @@ public class ModuleManager {
     }
 
     /**
+     * Ativa o OmniLeveler para o jogador com a altura mínima informada.
+     * Desativa o OmniDrill automaticamente (exclusão mútua).
+     *
+     * @param playerId UUID do jogador
+     * @param minY     coordenada Y mínima para quebra
+     */
+    public void enableLeveler(UUID playerId, int minY) {
+        disable(playerId, "omnidrill");
+        enable(playerId, "omnileveler");
+        levelerMinY.put(playerId, minY);
+    }
+
+    /**
+     * Verifica se o OmniLeveler está ativo para o jogador.
+     */
+    public boolean isLevelerActive(UUID playerId) {
+        return isEnabled(playerId, "omnileveler");
+    }
+
+    /**
+     * Retorna a altura mínima (Y) configurada para o OmniLeveler do jogador.
+     * Se não houver configuração, retorna 0.
+     */
+    public int getLevelerMinY(UUID playerId) {
+        return levelerMinY.getOrDefault(playerId, 0);
+    }
+
+    /**
      * Remove todos os dados de módulos e configurações de um jogador.
      * Pode ser chamado ao desconectar para liberar memória.
      *
@@ -132,5 +164,6 @@ public class ModuleManager {
     public void clearPlayer(UUID playerId) {
         playerModules.remove(playerId);
         drillAreaConfig.remove(playerId);
+        levelerMinY.remove(playerId);
     }
 }

@@ -55,16 +55,17 @@ OmniTweaks.onInitialize()
   └── BaseCommand.register()       // registers /omnitweaks and /ot alias via Brigadier
   └── TreeCapitatorModule.register() // registers Fabric AFTER block break event
   └── OmniDrillModule.register()    // registers Fabric BEFORE block break event
+  └── OmniLevelerModule.register()   // registers Fabric BEFORE block break event (mutual exclusion with Drill)
   // AutoShulkerModule has no register() — it's driven entirely by ItemEntityMixin
 ```
 
 ### ModuleManager (`core/ModuleManager.java`)
 
-Central state: `Map<UUID, Set<String>>` for enabled modules, `Map<UUID, int[]>` for OmniDrill area config. Module IDs: `"autoshulker"`, `"treecapitator"`, `"omnidrill"`. All modules start **disabled** for every player; state resets on server restart.
+Central state: `Map<UUID, Set<String>>` for enabled modules, `Map<UUID, int[]>` for OmniDrill area config, `Map<UUID, Integer>` for OmniLeveler minY. Module IDs: `"autoshulker"`, `"treecapitator"`, `"omnidrill"`, `"quickdump"`, `"omniplanter"`, `"omnileveler"`. All modules start **disabled** for every player; state resets on server restart.
 
 ### Command system (`commands/BaseCommand.java`)
 
-Single root command `/omnitweaks` (alias `/ot`) with literal subcommands per module. OmniDrill accepts optional `<largura> <altura>` (1–8 each) to set area and activate. All other modules are simple toggles. Uses `ctx.getSource().getPlayerOrException()` — commands require a player context.
+Single root command `/omnitweaks` (alias `/ot`) with literal subcommands per module. OmniDrill accepts optional `<largura> <altura> [<profundidade>]` (1–8 each) to set area and activate. OmniLeveler accepts `<alturaY>` to set minY and activate, or `off` to deactivate. `/ot all` toggles all modules **except** OmniLeveler. OmniDrill and OmniLeveler are mutually exclusive — activating one disables the other. Uses `ctx.getSource().getPlayerOrException()` — commands require a player context.
 
 ### Module pattern
 
@@ -73,6 +74,7 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 - **OmniDrill** — `PlayerBlockBreakEvents.BEFORE`: checks `DataComponents.TOOL` + `player.pick()` for face detection, BFS in a 3D volume (width × height × depth, default 3×3×3, max 8×8×8) expanding laterally and into the wall via `face.getOpposite()`, respects 6-block distance and durability ≥ 2; yields to TreeCapitator when both are active and block is a log; awards `Stats.BLOCK_MINED` for each extra block
 - **AutoShulker** — No event registration; `ItemEntityMixin` injects into `ItemEntity.playerTouch()` at HEAD (cancellable), delegates to `AutoShulkerModule.handlePickup()`. Iterates player inventory for Shulker Boxes, uses `DataComponents.CONTAINER` / `ItemContainerContents` (no direct NBT), merges then fills empty slots
 - **QuickDump** — `UseBlockCallback.EVENT` (sneak + right-click on any container block); intercepts only when player holds a Shulker Box in main hand and is sneaking; transfers items into the target `Container` block entity (merge phase then empty slots, respects `canPlaceItem`); updates `DataComponents.CONTAINER` in-place on the Shulker Box; returns `InteractionResult.SUCCESS_SERVER` to cancel vanilla (no GUI opens)
+- **OmniLeveler** — `PlayerBlockBreakEvents.BEFORE`: BFS 6-connected (all cardinal directions) from the broken block, same block type, `Y >= minY`, raio 32 blocos, máx 800 blocos por execução. Mutuamente exclusivo com OmniDrill. Yields to TreeCapitator for logs. Awards `Stats.BLOCK_MINED` + `hurtAndBreak` for each block
 
 ### Adding a new module
 
