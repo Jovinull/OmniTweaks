@@ -8,6 +8,7 @@ import net.fabricmc.api.ModInitializer;
 import com.jovinull.omnitweaks.commands.BaseCommand;
 import com.jovinull.omnitweaks.core.ModuleManager;
 import com.jovinull.omnitweaks.modules.omnidrill.OmniDrillModule;
+import com.jovinull.omnitweaks.modules.omnileveler.OmniLevelerModule;
 import com.jovinull.omnitweaks.modules.omniplanter.OmniPlanterModule;
 import com.jovinull.omnitweaks.modules.quickdump.QuickDumpModule;
 import com.jovinull.omnitweaks.modules.treecapitator.TreeCapitatorModule;
@@ -35,6 +36,7 @@ public class OmniTweaks implements ModInitializer {
         BaseCommand.register(moduleManager);
         TreeCapitatorModule.register();
         OmniDrillModule.register();
+        OmniLevelerModule.register();
         QuickDumpModule.register();
         OmniPlanterModule.register();
 

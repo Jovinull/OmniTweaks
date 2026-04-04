@@ -1,5 +1,6 @@
 package com.jovinull.omnitweaks.commands;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -75,6 +76,12 @@ public final class BaseCommand {
                                                 .then(Commands.argument("profundidade", IntegerArgumentType.integer(1, 8))
                                                         .executes(ctx -> activateDrill(ctx, moduleManager,
                                                                 IntegerArgumentType.getInteger(ctx, "profundidade")))))))
+                        // Subcomando: /omnitweaks leveler <alturaY> | off
+                        .then(Commands.literal("leveler")
+                                .then(Commands.literal("off")
+                                        .executes(ctx -> deactivateLeveler(ctx, moduleManager)))
+                                .then(Commands.argument("alturaY", IntegerArgumentType.integer())
+                                        .executes(ctx -> activateLeveler(ctx, moduleManager))))
         );
 
         // Alias: /ot redireciona para /omnitweaks (preserva subcomandos)
@@ -90,7 +97,10 @@ public final class BaseCommand {
                                   ModuleManager moduleManager) throws CommandSyntaxException {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         UUID uuid = player.getUUID();
-        Set<String> modules = moduleManager.getAvailableModules();
+
+        // OmniLeveler é exclusivo e manual — não participa do /ot all
+        Set<String> modules = new HashSet<>(moduleManager.getAvailableModules());
+        modules.remove("omnileveler");
 
         boolean allEnabled = modules.stream().allMatch(m -> moduleManager.isEnabled(uuid, m));
 
@@ -124,6 +134,11 @@ public final class BaseCommand {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         boolean enabled = moduleManager.toggle(player.getUUID(), module);
 
+        // Exclusão mútua: drill ligado desativa leveler
+        if (enabled && module.equals("omnidrill")) {
+            moduleManager.disable(player.getUUID(), "omnileveler");
+        }
+
         String displayName = formatModuleName(module);
 
         Component status = enabled
@@ -154,12 +169,53 @@ public final class BaseCommand {
 
         moduleManager.setDrillArea(player.getUUID(), width, height, depth);
         moduleManager.enable(player.getUUID(), "omnidrill");
+        moduleManager.disable(player.getUUID(), "omnileveler");
 
         Component message = Component.empty()
                 .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
                 .append(Component.literal("OmniDrill ").withStyle(ChatFormatting.WHITE))
                 .append(Component.literal("ativado: ").withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(width + "x" + height + "x" + depth).withStyle(ChatFormatting.AQUA));
+
+        player.sendSystemMessage(message);
+        return 1;
+    }
+
+    /**
+     * Ativa o OmniLeveler com a altura mínima informada.
+     * Desativa o OmniDrill automaticamente (exclusão mútua via ModuleManager).
+     */
+    private static int activateLeveler(CommandContext<CommandSourceStack> ctx,
+                                        ModuleManager moduleManager) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        int minY = IntegerArgumentType.getInteger(ctx, "alturaY");
+
+        moduleManager.enableLeveler(player.getUUID(), minY);
+
+        Component message = Component.empty()
+                .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal("OmniLeveler ").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("ativado! ").withStyle(ChatFormatting.GREEN))
+                .append(Component.literal("Quebrando apenas acima da altura ").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal(String.valueOf(minY)).withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(".").withStyle(ChatFormatting.WHITE));
+
+        player.sendSystemMessage(message);
+        return 1;
+    }
+
+    /**
+     * Desativa o OmniLeveler para o jogador.
+     */
+    private static int deactivateLeveler(CommandContext<CommandSourceStack> ctx,
+                                          ModuleManager moduleManager) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        moduleManager.disable(player.getUUID(), "omnileveler");
+
+        Component message = Component.empty()
+                .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal("OmniLeveler ").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("desativado.").withStyle(ChatFormatting.RED));
 
         player.sendSystemMessage(message);
         return 1;
@@ -175,6 +231,7 @@ public final class BaseCommand {
             case "omnidrill" -> "OmniDrill";
             case "quickdump" -> "QuickDump";
             case "omniplanter" -> "OmniPlanter";
+            case "omnileveler" -> "OmniLeveler";
             default -> module;
         };
     }
