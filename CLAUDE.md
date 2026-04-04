@@ -77,6 +77,7 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 - **OmniLeveler** — `PlayerBlockBreakEvents.BEFORE`: BFS 6-connected (all cardinal directions) from the broken block, same block type, `Y >= minY`, raio 32 blocos, máx 800 blocos por execução. Mutuamente exclusivo com OmniDrill. Yields to TreeCapitator for logs. Awards `Stats.BLOCK_MINED` + `hurtAndBreak` for each block
 - **OmniDecay** (FastDecay) — `PlayerBlockBreakEvents.AFTER`: ao quebrar log ou folha, escaneia cubo de raio 7, agenda `scheduleTick(pos, block, 1)` para folhas órfãs (`DISTANCE >= 7`, `PERSISTENT == false`). Complementa TreeCapitator para decay quase instantâneo
 - **OmniMagnet** — `ServerTickEvents.END_SERVER_TICK`: a cada tick itera jogadores online com módulo ativo, busca `ItemEntity` num raio de 5 blocos via `getEntities(EntityType.ITEM, AABB, predicate)`, calcula vetor unitário item→jogador e aplica `setDeltaMovement(direction.scale(0.45))`. Filtra itens com `hasPickUpDelay()`
+- **OmniSaver** — `ServerTickEvents.END_SERVER_TICK`: monitora slots MAINHAND, OFFHAND e CHEST; quando `isDamageableItem()` e durabilidade restante < 5, move o item para o inventário (`Inventory.add()`) ou dropa (`player.drop()`), limpa o slot, toca `EXPERIENCE_ORB_PICKUP` com pitch 2.0 e exibe aviso na action bar
 
 ### Adding a new module
 

@@ -12,6 +12,7 @@ import com.jovinull.omnitweaks.modules.omnidrill.OmniDrillModule;
 import com.jovinull.omnitweaks.modules.omnileveler.OmniLevelerModule;
 import com.jovinull.omnitweaks.modules.omnimagnet.OmniMagnetModule;
 import com.jovinull.omnitweaks.modules.omniplanter.OmniPlanterModule;
+import com.jovinull.omnitweaks.modules.omnisaver.OmniSaverModule;
 import com.jovinull.omnitweaks.modules.quickdump.QuickDumpModule;
 import com.jovinull.omnitweaks.modules.treecapitator.TreeCapitatorModule;
 
@@ -41,6 +42,7 @@ public class OmniTweaks implements ModInitializer {
         OmniDrillModule.register();
         OmniLevelerModule.register();
         OmniMagnetModule.register();
+        OmniSaverModule.register();
         QuickDumpModule.register();
         OmniPlanterModule.register();
 
