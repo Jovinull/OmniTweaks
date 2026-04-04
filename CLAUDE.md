@@ -92,6 +92,14 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 "/c/Program Files/GitHub CLI/gh" pr create --title "..." --body "..."
 ```
 
+**After creating the PR, always return to `main` and pull** so the local working tree is clean and up to date for the next task:
+
+```bash
+git checkout main && git pull
+```
+
+Exception: if the CI fails and the branch needs a fix, stay on the branch to fix it. Once the fix is pushed, return to `main`.
+
 ## Commit conventions
 
 Conventional commits in Portuguese, title only — no body, no co-author signatures.
