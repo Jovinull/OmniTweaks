@@ -65,6 +65,9 @@ public final class BaseCommand {
                         // Subcomando: /omnitweaks fastdecay
                         .then(Commands.literal("fastdecay")
                                 .executes(ctx -> toggleModule(ctx, moduleManager, "fastdecay")))
+                        // Subcomando: /omnitweaks magnet
+                        .then(Commands.literal("magnet")
+                                .executes(ctx -> toggleModule(ctx, moduleManager, "omnimagnet")))
                         // Subcomando: /omnitweaks all — ativa ou desativa todos os módulos
                         .then(Commands.literal("all")
                                 .executes(ctx -> toggleAll(ctx, moduleManager)))
@@ -236,6 +239,7 @@ public final class BaseCommand {
             case "omniplanter" -> "OmniPlanter";
             case "omnileveler" -> "OmniLeveler";
             case "fastdecay" -> "Queda Rápida de Folhas";
+            case "omnimagnet" -> "OmniMagnet";
             default -> module;
         };
     }
