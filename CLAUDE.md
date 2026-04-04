@@ -75,6 +75,7 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 - **AutoShulker** — No event registration; `ItemEntityMixin` injects into `ItemEntity.playerTouch()` at HEAD (cancellable), delegates to `AutoShulkerModule.handlePickup()`. Iterates player inventory for Shulker Boxes, uses `DataComponents.CONTAINER` / `ItemContainerContents` (no direct NBT), merges then fills empty slots
 - **QuickDump** — `UseBlockCallback.EVENT` (sneak + right-click on any container block); intercepts only when player holds a Shulker Box in main hand and is sneaking; transfers items into the target `Container` block entity (merge phase then empty slots, respects `canPlaceItem`); updates `DataComponents.CONTAINER` in-place on the Shulker Box; returns `InteractionResult.SUCCESS_SERVER` to cancel vanilla (no GUI opens)
 - **OmniLeveler** — `PlayerBlockBreakEvents.BEFORE`: BFS 6-connected (all cardinal directions) from the broken block, same block type, `Y >= minY`, raio 32 blocos, máx 800 blocos por execução. Mutuamente exclusivo com OmniDrill. Yields to TreeCapitator for logs. Awards `Stats.BLOCK_MINED` + `hurtAndBreak` for each block
+- **OmniDecay** (FastDecay) — `PlayerBlockBreakEvents.AFTER`: ao quebrar log ou folha, escaneia cubo de raio 7, agenda `scheduleTick(pos, block, 1)` para folhas órfãs (`DISTANCE >= 7`, `PERSISTENT == false`). Complementa TreeCapitator para decay quase instantâneo
 
 ### Adding a new module
 
