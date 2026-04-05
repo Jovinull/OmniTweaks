@@ -16,6 +16,9 @@
   "entrypoints": {
     "main": [
       "com.jovinull.omnitweaks.OmniTweaks"
+    ],
+    "client": [
+      "com.jovinull.omnitweaks.OmniTweaksClient"
     ]
   },
 
