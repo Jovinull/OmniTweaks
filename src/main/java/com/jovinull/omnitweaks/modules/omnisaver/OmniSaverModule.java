@@ -83,8 +83,10 @@ public final class OmniSaverModule {
 
             // Mensagem na action bar (segundo parâmetro true = overlay/action bar)
             player.sendSystemMessage(Component.empty()
-                    .append(Component.literal("AVISO: ").withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
-                    .append(Component.literal("Item salvo da destruição!").withStyle(ChatFormatting.WHITE)), true);
+                    .append(Component.translatable("message.omnitweaks.saver.warning")
+                            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD))
+                    .append(Component.translatable("message.omnitweaks.saver.saved")
+                            .withStyle(ChatFormatting.WHITE)), true);
         }
     }
 }

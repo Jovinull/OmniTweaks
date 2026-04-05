@@ -1,0 +1,30 @@
+{
+  "key.omnitweaks.config": "OmniTweaks 설정 열기",
+
+  "config.omnitweaks.title": "OmniTweaks — 설정",
+  "config.omnitweaks.category.modules": "모듈",
+  "config.omnitweaks.category.advanced": "고급 설정",
+  "config.omnitweaks.save": "저장 후 닫기",
+
+  "config.omnitweaks.module.autoshulker": "자동 셜커",
+  "config.omnitweaks.module.treecapitator": "연쇄 벌목",
+  "config.omnitweaks.module.drill": "범위 채굴",
+  "config.omnitweaks.module.quickdump": "빠른 비우기",
+  "config.omnitweaks.module.planter": "자동 심기",
+  "config.omnitweaks.module.leveler": "정지 도구",
+  "config.omnitweaks.module.fastdecay": "빠른 잎 소멸",
+  "config.omnitweaks.module.magnet": "아이템 자석",
+  "config.omnitweaks.module.saver": "내구도 보호",
+
+  "config.omnitweaks.drill.width": "채굴 — 너비",
+  "config.omnitweaks.drill.height": "채굴 — 높이",
+  "config.omnitweaks.drill.depth": "채굴 — 깊이",
+  "config.omnitweaks.leveler.miny": "최소 Y",
+  "config.omnitweaks.leveler.miny.hint": "예: 64",
+  "config.omnitweaks.leveler.miny.label": "정지 도구 — 최소 높이 (Y)",
+
+  "message.omnitweaks.quickdump.success": "%d개의 아이템을 컨테이너에 옮겼습니다.",
+  "message.omnitweaks.quickdump.fail": "컨테이너가 가득 찼거나 셜커 상자가 비어 있습니다.",
+  "message.omnitweaks.saver.warning": "경고: ",
+  "message.omnitweaks.saver.saved": "아이템이 파괴에서 구출되었습니다!"
+}

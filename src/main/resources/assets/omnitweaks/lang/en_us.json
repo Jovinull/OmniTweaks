@@ -1,0 +1,30 @@
+{
+  "key.omnitweaks.config": "Open OmniTweaks Config",
+
+  "config.omnitweaks.title": "OmniTweaks — Settings",
+  "config.omnitweaks.category.modules": "Modules",
+  "config.omnitweaks.category.advanced": "Advanced Settings",
+  "config.omnitweaks.save": "Save and Close",
+
+  "config.omnitweaks.module.autoshulker": "AutoShulker",
+  "config.omnitweaks.module.treecapitator": "TreeCapitator",
+  "config.omnitweaks.module.drill": "OmniDrill",
+  "config.omnitweaks.module.quickdump": "QuickDump",
+  "config.omnitweaks.module.planter": "OmniPlanter",
+  "config.omnitweaks.module.leveler": "OmniLeveler",
+  "config.omnitweaks.module.fastdecay": "Fast Leaf Decay",
+  "config.omnitweaks.module.magnet": "OmniMagnet",
+  "config.omnitweaks.module.saver": "OmniSaver",
+
+  "config.omnitweaks.drill.width": "Drill — Width",
+  "config.omnitweaks.drill.height": "Drill — Height",
+  "config.omnitweaks.drill.depth": "Drill — Depth",
+  "config.omnitweaks.leveler.miny": "Min Y",
+  "config.omnitweaks.leveler.miny.hint": "e.g.: 64",
+  "config.omnitweaks.leveler.miny.label": "Leveler — Min Height (Y)",
+
+  "message.omnitweaks.quickdump.success": "%d item(s) dumped into container.",
+  "message.omnitweaks.quickdump.fail": "Container full or Shulker Box empty.",
+  "message.omnitweaks.saver.warning": "WARNING: ",
+  "message.omnitweaks.saver.saved": "Item saved from destruction!"
+}

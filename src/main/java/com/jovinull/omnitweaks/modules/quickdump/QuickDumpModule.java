@@ -71,12 +71,13 @@ public final class QuickDumpModule {
             if (dumped > 0) {
                 message = Component.empty()
                         .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
-                        .append(Component.literal(dumped + " item(ns)").withStyle(ChatFormatting.GREEN))
-                        .append(Component.literal(" descarregados no container.").withStyle(ChatFormatting.WHITE));
+                        .append(Component.translatable("message.omnitweaks.quickdump.success", dumped)
+                                .withStyle(ChatFormatting.GREEN));
             } else {
                 message = Component.empty()
                         .append(Component.literal("[OmniTweaks] ").withStyle(ChatFormatting.GOLD))
-                        .append(Component.literal("Container cheio ou Shulker Box vazia.").withStyle(ChatFormatting.RED));
+                        .append(Component.translatable("message.omnitweaks.quickdump.fail")
+                                .withStyle(ChatFormatting.RED));
             }
 
             serverPlayer.sendSystemMessage(message);

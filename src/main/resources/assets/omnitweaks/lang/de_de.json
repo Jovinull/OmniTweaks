@@ -1,0 +1,30 @@
+{
+  "key.omnitweaks.config": "OmniTweaks-Einstellungen öffnen",
+
+  "config.omnitweaks.title": "OmniTweaks — Einstellungen",
+  "config.omnitweaks.category.modules": "Module",
+  "config.omnitweaks.category.advanced": "Erweiterte Einstellungen",
+  "config.omnitweaks.save": "Speichern und Schließen",
+
+  "config.omnitweaks.module.autoshulker": "AutoShulker",
+  "config.omnitweaks.module.treecapitator": "TreeCapitator",
+  "config.omnitweaks.module.drill": "OmniDrill",
+  "config.omnitweaks.module.quickdump": "QuickDump",
+  "config.omnitweaks.module.planter": "OmniPlanter",
+  "config.omnitweaks.module.leveler": "OmniLeveler",
+  "config.omnitweaks.module.fastdecay": "Schneller Laubverfall",
+  "config.omnitweaks.module.magnet": "OmniMagnet",
+  "config.omnitweaks.module.saver": "OmniSaver",
+
+  "config.omnitweaks.drill.width": "Drill — Breite",
+  "config.omnitweaks.drill.height": "Drill — Höhe",
+  "config.omnitweaks.drill.depth": "Drill — Tiefe",
+  "config.omnitweaks.leveler.miny": "Min Y",
+  "config.omnitweaks.leveler.miny.hint": "z.B.: 64",
+  "config.omnitweaks.leveler.miny.label": "Leveler — Mindesthöhe (Y)",
+
+  "message.omnitweaks.quickdump.success": "%d Gegenstand/Gegenstände in den Behälter entleert.",
+  "message.omnitweaks.quickdump.fail": "Behälter voll oder Shulker Box leer.",
+  "message.omnitweaks.saver.warning": "WARNUNG: ",
+  "message.omnitweaks.saver.saved": "Gegenstand vor Zerstörung gerettet!"
+}
