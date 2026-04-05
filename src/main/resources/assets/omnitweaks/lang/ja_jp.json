@@ -1,0 +1,30 @@
+{
+  "key.omnitweaks.config": "OmniTweaks 設定を開く",
+
+  "config.omnitweaks.title": "OmniTweaks — 設定",
+  "config.omnitweaks.category.modules": "モジュール",
+  "config.omnitweaks.category.advanced": "詳細設定",
+  "config.omnitweaks.save": "保存して閉じる",
+
+  "config.omnitweaks.module.autoshulker": "オートシュルカー",
+  "config.omnitweaks.module.treecapitator": "一括伐採",
+  "config.omnitweaks.module.drill": "範囲採掘",
+  "config.omnitweaks.module.quickdump": "クイックダンプ",
+  "config.omnitweaks.module.planter": "自動植え付け",
+  "config.omnitweaks.module.leveler": "整地ツール",
+  "config.omnitweaks.module.fastdecay": "高速葉っぱ消滅",
+  "config.omnitweaks.module.magnet": "アイテムマグネット",
+  "config.omnitweaks.module.saver": "耐久値セーバー",
+
+  "config.omnitweaks.drill.width": "採掘 — 幅",
+  "config.omnitweaks.drill.height": "採掘 — 高さ",
+  "config.omnitweaks.drill.depth": "採掘 — 奥行き",
+  "config.omnitweaks.leveler.miny": "最小 Y",
+  "config.omnitweaks.leveler.miny.hint": "例: 64",
+  "config.omnitweaks.leveler.miny.label": "整地ツール — 最小高度 (Y)",
+
+  "message.omnitweaks.quickdump.success": "%d 個のアイテムをコンテナに移しました。",
+  "message.omnitweaks.quickdump.fail": "コンテナが満杯か、シュルカーボックスが空です。",
+  "message.omnitweaks.saver.warning": "警告: ",
+  "message.omnitweaks.saver.saved": "アイテムを破壊から救出しました！"
+}

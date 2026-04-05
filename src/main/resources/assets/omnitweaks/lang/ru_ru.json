@@ -1,0 +1,30 @@
+{
+  "key.omnitweaks.config": "Открыть настройки OmniTweaks",
+
+  "config.omnitweaks.title": "OmniTweaks — Настройки",
+  "config.omnitweaks.category.modules": "Модули",
+  "config.omnitweaks.category.advanced": "Расширенные настройки",
+  "config.omnitweaks.save": "Сохранить и закрыть",
+
+  "config.omnitweaks.module.autoshulker": "AutoShulker",
+  "config.omnitweaks.module.treecapitator": "TreeCapitator",
+  "config.omnitweaks.module.drill": "OmniDrill",
+  "config.omnitweaks.module.quickdump": "QuickDump",
+  "config.omnitweaks.module.planter": "OmniPlanter",
+  "config.omnitweaks.module.leveler": "OmniLeveler",
+  "config.omnitweaks.module.fastdecay": "Быстрое опадание листвы",
+  "config.omnitweaks.module.magnet": "OmniMagnet",
+  "config.omnitweaks.module.saver": "OmniSaver",
+
+  "config.omnitweaks.drill.width": "Drill — Ширина",
+  "config.omnitweaks.drill.height": "Drill — Высота",
+  "config.omnitweaks.drill.depth": "Drill — Глубина",
+  "config.omnitweaks.leveler.miny": "Мин Y",
+  "config.omnitweaks.leveler.miny.hint": "напр.: 64",
+  "config.omnitweaks.leveler.miny.label": "Leveler — Мин. высота (Y)",
+
+  "message.omnitweaks.quickdump.success": "%d предмет(ов) выгружено в контейнер.",
+  "message.omnitweaks.quickdump.fail": "Контейнер заполнен или Шалкер Бокс пуст.",
+  "message.omnitweaks.saver.warning": "ВНИМАНИЕ: ",
+  "message.omnitweaks.saver.saved": "Предмет спасён от уничтожения!"
+}

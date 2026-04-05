@@ -1,0 +1,30 @@
+{
+  "key.omnitweaks.config": "Abrir Configuración de OmniTweaks",
+
+  "config.omnitweaks.title": "OmniTweaks — Configuración",
+  "config.omnitweaks.category.modules": "Módulos",
+  "config.omnitweaks.category.advanced": "Configuración Avanzada",
+  "config.omnitweaks.save": "Guardar y Cerrar",
+
+  "config.omnitweaks.module.autoshulker": "AutoShulker",
+  "config.omnitweaks.module.treecapitator": "TreeCapitator",
+  "config.omnitweaks.module.drill": "OmniDrill",
+  "config.omnitweaks.module.quickdump": "QuickDump",
+  "config.omnitweaks.module.planter": "OmniPlanter",
+  "config.omnitweaks.module.leveler": "OmniLeveler",
+  "config.omnitweaks.module.fastdecay": "Caída Rápida de Hojas",
+  "config.omnitweaks.module.magnet": "OmniMagnet",
+  "config.omnitweaks.module.saver": "OmniSaver",
+
+  "config.omnitweaks.drill.width": "Drill — Ancho",
+  "config.omnitweaks.drill.height": "Drill — Alto",
+  "config.omnitweaks.drill.depth": "Drill — Profundidad",
+  "config.omnitweaks.leveler.miny": "Mín Y",
+  "config.omnitweaks.leveler.miny.hint": "ej: 64",
+  "config.omnitweaks.leveler.miny.label": "Leveler — Altura Mínima (Y)",
+
+  "message.omnitweaks.quickdump.success": "%d ítem(s) descargados en el contenedor.",
+  "message.omnitweaks.quickdump.fail": "Contenedor lleno o Shulker Box vacía.",
+  "message.omnitweaks.saver.warning": "¡AVISO: ",
+  "message.omnitweaks.saver.saved": "Ítem salvado de la destrucción!"
+}
