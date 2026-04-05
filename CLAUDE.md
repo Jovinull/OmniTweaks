@@ -50,22 +50,36 @@ The mod follows a **module system** pattern where each feature is independently 
 ### Core flow
 
 ```
-OmniTweaks.onInitialize()
-  └── new ModuleManager()          // in-memory state store (ConcurrentHashMap, no persistence)
-  └── BaseCommand.register()       // registers /omnitweaks and /ot alias via Brigadier
-  └── TreeCapitatorModule.register() // registers Fabric AFTER block break event
-  └── OmniDrillModule.register()    // registers Fabric BEFORE block break event
-  └── OmniLevelerModule.register()   // registers Fabric BEFORE block break event (mutual exclusion with Drill)
+OmniTweaks.onInitialize()  (server entrypoint)
+  └── new ModuleManager()                        // in-memory state store (ConcurrentHashMap)
+  └── PayloadTypeRegistry.serverboundPlay()      // registers ConfigSyncPayload C2S
+  └── ServerPlayNetworking.registerGlobalReceiver() // receives config from client, updates ModuleManager
+  └── TreeCapitatorModule.register()             // AFTER block break
+  └── OmniDecayModule.register()                 // AFTER block break
+  └── OmniDrillModule.register()                 // BEFORE block break
+  └── OmniLevelerModule.register()               // BEFORE block break (mutual exclusion with Drill)
+  └── OmniMagnetModule.register()                // END_SERVER_TICK
+  └── OmniSaverModule.register()                 // END_SERVER_TICK
+  └── QuickDumpModule.register()                 // UseBlockCallback
+  └── OmniPlanterModule.register()               // UseBlockCallback
   // AutoShulkerModule has no register() — it's driven entirely by ItemEntityMixin
+
+OmniTweaksClient.onInitializeClient()  (client entrypoint)
+  └── OmniConfig.load()                          // carrega omnitweaks.json local
+  └── KeyMappingHelper.registerKeyMapping()      // tecla O abre GUI
+  └── ClientTickEvents.END_CLIENT_TICK           // detecta tecla → abre OmniConfigScreen
+  └── ClientPlayConnectionEvents.JOIN            // ao entrar no mundo, envia ConfigSyncPayload
 ```
+
+### Configuração e Persistência
+
+- **OmniConfig** (`config/OmniConfig.java`): Gson-based JSON file (`omnitweaks.json`) na pasta de configs do Fabric. Armazena booleans para cada módulo e inteiros (drillWidth, drillHeight, drillDepth, levelerMinY). Carregado no cliente, nunca no servidor.
+- **ConfigSyncPayload** (`network/ConfigSyncPayload.java`): Custom Payload C2S (Client→Server) via `PayloadTypeRegistry.serverboundPlay()`. Carrega todos os estados + parâmetros numéricos. Enviado ao salvar na GUI e ao entrar no mundo.
+- **OmniConfigScreen** (`client/OmniConfigScreen.java`): GUI vanilla com `CycleButton.onOffBuilder()` para toggles, `CycleButton.builder()` para inteiros 1–8, e `EditBox` para levelerMinY. Ao salvar: persiste em disco + envia pacote ao servidor.
 
 ### ModuleManager (`core/ModuleManager.java`)
 
-Central state: `Map<UUID, Set<String>>` for enabled modules, `Map<UUID, int[]>` for OmniDrill area config, `Map<UUID, Integer>` for OmniLeveler minY. Module IDs: `"autoshulker"`, `"treecapitator"`, `"omnidrill"`, `"quickdump"`, `"omniplanter"`, `"omnileveler"`. All modules start **disabled** for every player; state resets on server restart.
-
-### Command system (`commands/BaseCommand.java`)
-
-Single root command `/omnitweaks` (alias `/ot`) with literal subcommands per module. OmniDrill accepts optional `<largura> <altura> [<profundidade>]` (1–8 each) to set area and activate. OmniLeveler accepts `<alturaY>` to set minY and activate, or `off` to deactivate. `/ot all` toggles all modules **except** OmniLeveler. OmniDrill and OmniLeveler are mutually exclusive — activating one disables the other. Uses `ctx.getSource().getPlayerOrException()` — commands require a player context.
+Central state: `Map<UUID, Set<String>>` for enabled modules, `Map<UUID, int[]>` for OmniDrill area config, `Map<UUID, Integer>` for OmniLeveler minY. Module IDs: `"autoshulker"`, `"treecapitator"`, `"omnidrill"`, `"quickdump"`, `"omniplanter"`, `"omnileveler"`, `"fastdecay"`, `"omnimagnet"`, `"omnisaver"`. All modules start **disabled** for every player; state resets on server restart. Config persists client-side via OmniConfig.
 
 ### Module pattern
 
@@ -83,9 +97,11 @@ Each module (except AutoShulker) registers a Fabric API event listener:
 
 1. Create `modules/<name>/<Name>Module.java` with a `register()` static method
 2. Add the module ID string to `ModuleManager.AVAILABLE_MODULES`
-3. Add a subcommand literal in `BaseCommand.registerCommands()`
-4. Call `<Name>Module.register()` in `OmniTweaks.onInitialize()`
-5. If Mixin-based: add the mixin class and declare it in `omnitweaks.mixins.json`
+3. Add boolean field in `OmniConfig.java` and corresponding entry in `ConfigSyncPayload`
+4. Add toggle na GUI em `OmniConfigScreen.init()`
+5. Map o campo do payload no handler de `OmniTweaks.onInitialize()`
+6. Call `<Name>Module.register()` in `OmniTweaks.onInitialize()`
+7. If Mixin-based: add the mixin class and declare it in `omnitweaks.mixins.json`
 
 ## GitHub workflow
 
