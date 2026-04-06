@@ -8,7 +8,7 @@ Whether you're a builder, a miner, or an adventurer, OmniTweaks provides a power
 
 ## Key Features
 
-### 🛠️ Core Modules
+### Core Modules
 *   **AutoShulker**: Never worry about inventory management again. Automatically collects items directly into any Shulker Boxes in your inventory.
 *   **TreeCapitator**: Break a single log and the whole tree falls down. Includes smart leaf decay for that satisfying clear view.
 *   **OmniDrill**: Tunneling made easy. Mine in areas (default 3x3) and customize the width, height, and depth (up to 8x8x8).
@@ -16,7 +16,7 @@ Whether you're a builder, a miner, or an adventurer, OmniTweaks provides a power
 *   **OmniPlanter**: Plant whole fields in seconds with automated area planting.
 *   **OmniLeveler**: Perfect for clearing land or straight-line tunneling. Flatten your area at a specific Y-level effortlessly.
 
-### ⚡ Power Ups
+### Power Ups
 *   **FastDecay**: Leaves vanish almost instantly when trees are cut down.
 *   **OmniMagnet**: Attract all items within a 5-block radius directly to you.
 *   **OmniSaver**: Never break your favorite tools or armor again. Automatically un-equips or drops items when their durability is critical.
