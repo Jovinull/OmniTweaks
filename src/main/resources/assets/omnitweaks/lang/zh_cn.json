@@ -1,0 +1,30 @@
+{
+  "key.omnitweaks.config": "打开 OmniTweaks 设置",
+
+  "config.omnitweaks.title": "OmniTweaks — 设置",
+  "config.omnitweaks.category.modules": "模块",
+  "config.omnitweaks.category.advanced": "高级设置",
+  "config.omnitweaks.save": "保存并关闭",
+
+  "config.omnitweaks.module.autoshulker": "自动潜影盒",
+  "config.omnitweaks.module.treecapitator": "连锁砍树",
+  "config.omnitweaks.module.drill": "范围挖掘",
+  "config.omnitweaks.module.quickdump": "快速倾倒",
+  "config.omnitweaks.module.planter": "自动种植",
+  "config.omnitweaks.module.leveler": "平整工具",
+  "config.omnitweaks.module.fastdecay": "快速树叶凋零",
+  "config.omnitweaks.module.magnet": "物品磁铁",
+  "config.omnitweaks.module.saver": "耐久保护",
+
+  "config.omnitweaks.drill.width": "挖掘 — 宽度",
+  "config.omnitweaks.drill.height": "挖掘 — 高度",
+  "config.omnitweaks.drill.depth": "挖掘 — 深度",
+  "config.omnitweaks.leveler.miny": "最低 Y",
+  "config.omnitweaks.leveler.miny.hint": "例：64",
+  "config.omnitweaks.leveler.miny.label": "平整工具 — 最低高度 (Y)",
+
+  "message.omnitweaks.quickdump.success": "已将 %d 个物品倾倒至容器中。",
+  "message.omnitweaks.quickdump.fail": "容器已满或潜影盒为空。",
+  "message.omnitweaks.saver.warning": "警告：",
+  "message.omnitweaks.saver.saved": "物品已从损坏中抢救！"
+}

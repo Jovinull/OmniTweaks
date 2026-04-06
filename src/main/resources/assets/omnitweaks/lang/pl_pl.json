@@ -1,0 +1,30 @@
+{
+  "key.omnitweaks.config": "Otwórz ustawienia OmniTweaks",
+
+  "config.omnitweaks.title": "OmniTweaks — Ustawienia",
+  "config.omnitweaks.category.modules": "Moduły",
+  "config.omnitweaks.category.advanced": "Ustawienia Zaawansowane",
+  "config.omnitweaks.save": "Zapisz i Zamknij",
+
+  "config.omnitweaks.module.autoshulker": "AutoShulker",
+  "config.omnitweaks.module.treecapitator": "TreeCapitator",
+  "config.omnitweaks.module.drill": "OmniDrill",
+  "config.omnitweaks.module.quickdump": "QuickDump",
+  "config.omnitweaks.module.planter": "OmniPlanter",
+  "config.omnitweaks.module.leveler": "OmniLeveler",
+  "config.omnitweaks.module.fastdecay": "Szybki Rozpad Liści",
+  "config.omnitweaks.module.magnet": "OmniMagnet",
+  "config.omnitweaks.module.saver": "OmniSaver",
+
+  "config.omnitweaks.drill.width": "Drill — Szerokość",
+  "config.omnitweaks.drill.height": "Drill — Wysokość",
+  "config.omnitweaks.drill.depth": "Drill — Głębokość",
+  "config.omnitweaks.leveler.miny": "Min Y",
+  "config.omnitweaks.leveler.miny.hint": "np.: 64",
+  "config.omnitweaks.leveler.miny.label": "Leveler — Min. Wysokość (Y)",
+
+  "message.omnitweaks.quickdump.success": "%d przedmiot(ów) przeniesiono do pojemnika.",
+  "message.omnitweaks.quickdump.fail": "Pojemnik pełny lub Shulker Box pusty.",
+  "message.omnitweaks.saver.warning": "UWAGA: ",
+  "message.omnitweaks.saver.saved": "Przedmiot uratowany przed zniszczeniem!"
+}
