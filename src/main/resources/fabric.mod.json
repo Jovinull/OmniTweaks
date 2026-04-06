@@ -12,6 +12,7 @@
   "license": "MIT",
 
   "environment": "*",
+  "icon": "assets/omnitweaks/icon.png",
 
   "entrypoints": {
     "main": [

@@ -1,6 +1,10 @@
 # OmniTweaks
 
 <p align="center">
+  <img src="assets/logo.png" alt="OmniTweaks Logo" width="250">
+</p>
+
+<p align="center">
   <img src="assets/preview.png" alt="OmniTweaks GUI Preview" width="600">
 </p>
 

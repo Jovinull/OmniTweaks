@@ -1,5 +1,9 @@
 # OmniTweaks
 
+<p align="center">
+  <img src="assets/logo.png" alt="OmniTweaks Logo" width="250">
+</p>
+
 **OmniTweaks** is a versatile, modular Quality of Life mod for **Minecraft 26.1.1 (Fabric)**. Designed to streamline your gameplay, it eliminates repetitive tasks while keeping the experience smooth and customizable.
 
 Whether you're a builder, a miner, or an adventurer, OmniTweaks provides a powerful toolkit of "Smart Modules" that you can toggle on or off at any time.
